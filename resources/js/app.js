@@ -1,14 +1,27 @@
 import Vue from 'vue'
-import Vuetify from 'vuetify/lib'
+import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 import router from './router'
+import store from './store'
 import App from './App.vue'
 
-Vue.use(Vuetify)
+import './bootstrap'
 
-new Vue({
-  el: '#app',
-  router,
-  vuetify: new Vuetify(),
-  components: { App },
-  template: '<App />',
-})
+import 'bootstrap/dist/css/bootstrap.css'
+import 'bootstrap-vue/dist/bootstrap-vue.css'
+
+Vue.use(BootstrapVue)
+Vue.use(IconsPlugin)
+
+const createApp = async () => {
+  await store.dispatch('auth/currentUser')
+
+  new Vue({
+    el: '#app',
+    router,
+    store,
+    components: { App },
+    template: '<App />',
+  })
+}
+
+createApp()

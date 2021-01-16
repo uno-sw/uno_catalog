@@ -1,5 +1,4 @@
 const mix = require('laravel-mix')
-require('vuetifyjs-mix-extension')
 
 mix.webpackConfig({
   resolve: {
@@ -13,5 +12,4 @@ mix.browserSync('uno_learning.test')
   .js('resources/js/app.js', 'public/js')
   .sass('resources/sass/app.scss', 'public/css')
   .vue()
-  .vuetify()
   .version()

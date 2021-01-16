@@ -11,6 +11,8 @@
     },
     "devDependencies": {
         "axios": "^0.21",
+        "bootstrap": "^4.5.3",
+        "bootstrap-vue": "^2.21.2",
         "browser-sync": "^2.26.13",
         "browser-sync-webpack-plugin": "^2.2.2",
         "laravel-mix": "^6.0.6",
@@ -23,7 +25,6 @@
         "vue-router": "^3.4.9",
         "vue-style-loader": "^4.1.2",
         "vue-template-compiler": "^2.6.12",
-        "vuetify": "^2.4.2",
-        "vuetifyjs-mix-extension": "^0.0.17"
+        "vuex": "^3.6.0"
     }
 }

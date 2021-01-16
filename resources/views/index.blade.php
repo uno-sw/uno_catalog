@@ -9,8 +9,7 @@
   <script src="{{ mix('js/app.js') }}" defer></script>
 
   <!-- Fonts -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@5.8.55/css/materialdesignicons.min.css">
 
   <!-- Styles -->
   <link rel="stylesheet" href="{{ mix('css/app.css') }}">
