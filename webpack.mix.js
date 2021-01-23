@@ -8,7 +8,7 @@ mix.webpackConfig({
   },
 })
 
-mix.browserSync('uno_learning.test')
+mix.browserSync('uno_catalog.test')
   .js('resources/js/app.js', 'public/js')
   .sass('resources/sass/app.scss', 'public/css')
   .vue()

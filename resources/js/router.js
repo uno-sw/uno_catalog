@@ -3,6 +3,8 @@ import VueRouter from 'vue-router'
 
 import EntryList from './pages/EntryList.vue'
 import Login from './pages/Login.vue'
+import NotFound from './pages/errors/NotFound.vue'
+import SystemError from './pages/errors/System.vue'
 
 import store from './store'
 
@@ -30,6 +32,14 @@ const routes = [
         next()
       }
     },
+  },
+  {
+    path: '/500',
+    component: SystemError,
+  },
+  {
+    path: '*',
+    component: NotFound,
   },
 ]
 

@@ -9,7 +9,6 @@
   <script src="{{ mix('js/app.js') }}" defer></script>
 
   <!-- Fonts -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@5.8.55/css/materialdesignicons.min.css">
 
   <!-- Styles -->
   <link rel="stylesheet" href="{{ mix('css/app.css') }}">

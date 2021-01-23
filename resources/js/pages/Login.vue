@@ -3,18 +3,22 @@
     <div class="col-md-6">
       <b-card header="ログイン">
         <form @submit.prevent="login">
-          <label for="email">メールアドレス</label>
-          <b-form-input id="email" type="email" v-model="email" />
-          <label class="mt-2" for="password">パスワード</label>
-          <b-form-input id="password" type="password" v-model="password" />
+          <b-alert v-if="errors" variant="danger" show>
+            <ul v-if="errors.email" class="mb-0 pl-3">
+              <li v-for="msg in errors.email" :key="msg">{{ msg }}</li>
+            </ul>
+            <ul v-if="errors.password" class="mb-0 pl-3">
+              <li v-for="msg in errors.password" :key="msg">{{ msg }}</li>
+            </ul>
+          </b-alert>
+          <b-form-group label="メールアドレス" label-for="email">
+            <b-form-input id="email" type="email" v-model="form.email" />
+          </b-form-group>
+          <b-form-group label="パスワード" label-for="password">
+            <b-form-input id="password" type="password" v-model="form.password" />
+          </b-form-group>
           <div class="text-right">
-            <b-button
-              class="mt-3"
-              type="submit"
-              variant="primary"
-            >
-              ログイン
-            </b-button>
+            <b-button type="submit" variant="primary">ログイン</b-button>
           </div>
         </form>
       </b-card>
@@ -23,19 +27,37 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
+
 export default {
   data() {
     return {
-      email: '',
-      password: '',
+      form: {
+        email: '',
+        password: '',
+      },
     }
+  },
+  computed: {
+    ...mapState({
+      apiStatus: state => state.auth.apiStatus,
+      errors: state => state.auth.loginErrorMessages,
+    }),
   },
   methods: {
     async login() {
-      const credentials = { email: this.email, password: this.password }
-      await this.$store.dispatch('auth/login', credentials)
-      this.$router.push('/')
+      await this.$store.dispatch('auth/login', this.form)
+
+      if (this.apiStatus) {
+        this.$router.push('/')
+      }
     },
+    clearError() {
+      this.$store.commit('auth/setLoginErrorMessages', null)
+    },
+  },
+  created() {
+    this.clearError()
   },
 }
 </script>

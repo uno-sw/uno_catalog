@@ -1,6 +1,6 @@
 <template>
   <b-navbar type="dark" variant="dark">
-    <b-navbar-brand tag="router-link" to="/">UnoLearning</b-navbar-brand>
+    <b-navbar-brand tag="router-link" to="/">Uno Catalog</b-navbar-brand>
     <b-navbar-nav class="ml-auto">
       <b-nav-item-dropdown v-if="isLogin" :text="username" right>
         <b-dropdown-item @click.prevent="logout">ログアウト</b-dropdown-item>
@@ -13,19 +13,25 @@
 </template>
 
 <script>
+import { mapState, mapGetters } from 'vuex'
+
 export default {
   computed: {
-    isLogin() {
-      return this.$store.getters['auth/check']
-    },
-    username() {
-      return this.$store.getters['auth/username']
-    },
+    ...mapState({
+      apiStatus: state => state.auth.apiStatus,
+    }),
+    ...mapGetters({
+      isLogin: 'auth/check',
+      username: 'auth/username',
+    }),
   },
   methods: {
     async logout() {
       await this.$store.dispatch('auth/logout')
-      this.$router.push('/login')
+
+      if (this.apiStatus) {
+        this.$router.push('/login')
+      }
     },
   },
 }
