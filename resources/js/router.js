@@ -3,6 +3,7 @@ import VueRouter from 'vue-router'
 
 import EntryList from './pages/EntryList.vue'
 import Login from './pages/Login.vue'
+import CreateProduct from './pages/product/Create.vue'
 import NotFound from './pages/errors/NotFound.vue'
 import SystemError from './pages/errors/System.vue'
 
@@ -32,6 +33,10 @@ const routes = [
         next()
       }
     },
+  },
+  {
+    path: '/products/create',
+    component: CreateProduct,
   },
   {
     path: '/500',
