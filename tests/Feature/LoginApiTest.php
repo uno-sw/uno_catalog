@@ -36,4 +36,24 @@ class LoginApiTest extends TestCase
 
         $this->assertAuthenticatedAs($this->user);
     }
+
+    /**
+     * @test
+     */
+    public function should_not_authenticate_user_with_wrong_credentails()
+    {
+        $response = $this->json('POST', route('login'), [
+            'email' => 'test@example.com',
+            'password' => 'test',
+            'remember' => false,
+        ]);
+
+        $response
+            ->assertStatus(422)
+            ->assertJson([
+                'errors' => [
+                    'email' => ['メールアドレスまたはパスワードが正しくありません。'],
+                ],
+            ]);
+    }
 }

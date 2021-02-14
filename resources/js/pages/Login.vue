@@ -32,6 +32,11 @@
             </b-form-group>
             <b-form-row>
               <b-col offset-md="4">
+                <b-form-group>
+                  <b-form-checkbox v-model="form.remember">
+                    継続してログインする
+                  </b-form-checkbox>
+                </b-form-group>
                 <b-button type="submit" variant="primary">ログイン</b-button>
               </b-col>
             </b-form-row>
@@ -51,6 +56,7 @@ export default {
       form: {
         email: '',
         password: '',
+        remember: false,
       },
     }
   },
@@ -58,6 +64,7 @@ export default {
     ...mapState({
       apiStatus: state => state.auth.apiStatus,
       errors: state => state.auth.loginErrorMessages,
+      forwardingRoute: state => state.auth.forwardingRoute,
     }),
   },
   methods: {
@@ -65,7 +72,12 @@ export default {
       await this.$store.dispatch('auth/login', this.form)
 
       if (this.apiStatus) {
-        this.$router.push('/')
+        if (this.forwardingRoute) {
+          this.$router.push(this.forwardingRoute)
+          this.$store.commit('auth/setForwardingRoute', null)
+        } else {
+          this.$router.push('/')
+        }
       }
     },
     clearError() {

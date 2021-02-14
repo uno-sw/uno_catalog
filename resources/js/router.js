@@ -15,28 +15,17 @@ const routes = [
   {
     path: '/',
     component: EntryList,
-    beforeEnter(to, from, next) {
-      if (!store.getters['auth/check']) {
-        next('/login')
-      } else {
-        next()
-      }
-    }
+    meta: { auth: true },
   },
   {
     path: '/login',
     component: Login,
-    beforeEnter(to, from, next) {
-      if (store.getters['auth/check']) {
-        next('/')
-      } else {
-        next()
-      }
-    },
+    meta: { guest: true },
   },
   {
     path: '/products/create',
     component: CreateProduct,
+    meta: { auth: true },
   },
   {
     path: '/500',
@@ -51,6 +40,25 @@ const routes = [
 const router = new VueRouter({
   mode: 'history',
   routes
+})
+
+router.beforeEach((to, from, next) => {
+  if (to.matched.some(record => record.meta.auth)) {
+    if (store.getters['auth/check']) {
+      next()
+    } else {
+      store.commit('auth/setForwardingRoute', to)
+      next('/login')
+    }
+  }
+
+  if (to.matched.some(record => record.meta.guest)) {
+    if (store.getters['auth/check']) {
+      next('/')
+    } else {
+      next()
+    }
+  }
 })
 
 export default router

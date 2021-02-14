@@ -6,6 +6,7 @@ const state = {
   user: null,
   apiStatus: null,
   loginErrorMessages: null,
+  forwardingRoute: null,
 }
 
 const getters = {
@@ -22,6 +23,9 @@ const mutations = {
   },
   setLoginErrorMessages(state, messages) {
     state.loginErrorMessages = messages
+  },
+  setForwardingRoute(state, route) {
+    state.forwardingRoute = route
   },
 }
 
