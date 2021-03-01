@@ -3,18 +3,21 @@
     <header>
       <Navbar />
     </header>
-    <main class="py-4">
+    <b-container tag="main" class="py-4">
+      <Message />
       <RouterView />
-    </main>
+    </b-container>
   </div>
 </template>
 
 <script>
+import Message from './components/Message.vue'
 import Navbar from './components/Navbar.vue'
 import { NOT_FOUND, UNAUTHORIZED, INTERNAL_SERVER_ERROR } from './util'
 
 export default {
   components: {
+    Message,
     Navbar,
   },
   computed: {
@@ -38,6 +41,7 @@ export default {
     },
     $route() {
       this.$store.commit('error/setCode', null)
+      this.$store.commit('message/setMessage', { content: '' })
     },
   },
 }
