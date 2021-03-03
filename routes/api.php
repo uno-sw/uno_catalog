@@ -22,4 +22,5 @@ Route::get('/user', fn() => Auth::user())->name('user');
 Route::post('/login', [LoginController::class, 'login'])->name('login');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
+Route::get('/products', [ProductController::class, 'index'])->name('product.index');
 Route::post('/products', [ProductController::class, 'register'])->name('product.register');

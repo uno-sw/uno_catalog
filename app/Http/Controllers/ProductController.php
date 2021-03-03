@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\RegisterProduct;
+use App\Http\Resources\ProductIndexResource;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -12,6 +13,18 @@ class ProductController extends Controller
     public function __construct()
     {
         $this->middleware('auth:sanctum');
+    }
+
+    public function index() {
+        $products = Auth::user()
+            ->products()
+            ->orderBy('price', 'asc')
+            ->with(['tags' => function ($query) {
+                $query->orderBy('label');
+            }])
+            ->paginate();
+
+        return ProductIndexResource::collection($products);
     }
 
     public function register(RegisterProduct $request)
