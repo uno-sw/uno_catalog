@@ -181,6 +181,15 @@ class ProductRegisterApiTest extends TestCase
         $response = $this->actingAs($this->user)
             ->postJson(route('product.register'), [
                 'name' => 'Test',
+                'tags' => ['a', 'b', 'c', 'd', 'e',
+                           'f', 'g', 'h', 'i', 'j', 'k'],  // タグが10個を超えている
+            ]);
+        $response->assertStatus(422);
+        $this->assertEquals($productCount, Product::count());
+
+        $response = $this->actingAs($this->user)
+            ->postJson(route('product.register'), [
+                'name' => 'Test',
                 'tags' => ['test', 'Lorem ipsum dolor sit'],  // 20文字を超えるタグを含んでいる
             ]);
         $response->assertStatus(422);
@@ -213,6 +222,26 @@ class ProductRegisterApiTest extends TestCase
             ->postJson(route('product.register'), [
                 'name' => 'Test',
                 'links' => [['title' => 'Test']],  // urlが無い
+            ]);
+        $response->assertStatus(422);
+        $this->assertEquals($productCount, Product::count());
+
+        $response = $this->actingAs($this->user)
+            ->postJson(route('product.register'), [
+                'name' => 'Test',
+                'links' => [
+                    ['title' => 'a', 'url' => 'http://example.com'],
+                    ['title' => 'b', 'url' => 'http://example.com'],
+                    ['title' => 'c', 'url' => 'http://example.com'],
+                    ['title' => 'd', 'url' => 'http://example.com'],
+                    ['title' => 'e', 'url' => 'http://example.com'],
+                    ['title' => 'f', 'url' => 'http://example.com'],
+                    ['title' => 'g', 'url' => 'http://example.com'],
+                    ['title' => 'h', 'url' => 'http://example.com'],
+                    ['title' => 'i', 'url' => 'http://example.com'],
+                    ['title' => 'j', 'url' => 'http://example.com'],
+                    ['title' => 'k', 'url' => 'http://example.com'],
+                ],  // リンクが10個を超えている
             ]);
         $response->assertStatus(422);
         $this->assertEquals($productCount, Product::count());

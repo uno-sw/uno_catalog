@@ -17,7 +17,7 @@ class CreateLinksTable extends Migration
             $table->id();
             $table->string('title', 20);
             $table->string('url', 100);
-            $table->foreignId('product_id')->onDelete('cascade');
+            $table->foreignId('product_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }

@@ -49,7 +49,7 @@ class ProductListApiTest extends TestCase
         $products = $this->user->products()
             ->orderBy('price', 'asc')
             ->with(['tags' => function ($query) {
-                $query->orderBy('label');
+                $query->withPivot(['created_at'])->orderBy('pivot_created_at');
             }])
             ->get();
 

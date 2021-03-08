@@ -11,6 +11,11 @@ class Product extends Model
 
     protected $fillable = ['name', 'price', 'note'];
 
+    protected $casts = [
+        'user_id' => 'integer',
+        'price' => 'integer',
+    ];
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
@@ -42,7 +47,7 @@ class Product extends Model
         return $this->tags->map(fn($tag) => $tag->label);
     }
 
-    public function setTags(array $tags): void
+    public function setTagsAttribute(array $tags): void
     {
         $tagIds = array_map(
             fn($tag) => Tag::firstOrCreate(['label' => $tag])->id,

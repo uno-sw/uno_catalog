@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\RegisterProduct;
+use App\Http\Resources\ProductDetailResource;
 use App\Http\Resources\ProductIndexResource;
 use App\Models\Product;
 use Illuminate\Http\Request;
@@ -20,7 +21,7 @@ class ProductController extends Controller
             ->products()
             ->orderBy('price', 'asc')
             ->with(['tags' => function ($query) {
-                $query->orderBy('label');
+                $query->withPivot(['created_at'])->orderBy('pivot_created_at');
             }])
             ->paginate();
 
@@ -34,7 +35,7 @@ class ProductController extends Controller
         $product = Auth::user()->products()->create($validated);
 
         if (array_key_exists('tags', $validated)) {
-            $product->setTags($validated['tags']);
+            $product->tags = $validated['tags'];
         }
 
         if (array_key_exists('links', $validated)) {
@@ -42,5 +43,11 @@ class ProductController extends Controller
         }
 
         return response()->json(['id' => $product->id], 201);
+    }
+
+    public function show(Product $product)
+    {
+        $this->authorize('view', $product);
+        return new ProductDetailResource($product);
     }
 }
