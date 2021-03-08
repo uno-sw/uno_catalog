@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 
-import EntryList from './pages/EntryList.vue'
+import ProductList from './pages/ProductList.vue'
 import Login from './pages/Login.vue'
 import RegisterProduct from './pages/product/Register.vue'
 import NotFound from './pages/errors/NotFound.vue'
@@ -14,7 +14,7 @@ Vue.use(VueRouter)
 const routes = [
   {
     path: '/',
-    component: EntryList,
+    component: ProductList,
     meta: { auth: true },
   },
   {
