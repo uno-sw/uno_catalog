@@ -3,6 +3,7 @@ import VueRouter from 'vue-router'
 
 import ProductList from './pages/ProductList.vue'
 import Login from './pages/Login.vue'
+import ProductDetail from './pages/product/Detail.vue'
 import RegisterProduct from './pages/product/Register.vue'
 import NotFound from './pages/errors/NotFound.vue'
 import SystemError from './pages/errors/System.vue'
@@ -26,6 +27,11 @@ const routes = [
     path: '/products/register',
     component: RegisterProduct,
     meta: { auth: true },
+  },
+  {
+    path: '/products/:id',
+    component: ProductDetail,
+    props: true,
   },
   {
     path: '/500',

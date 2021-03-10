@@ -70,4 +70,14 @@ class ProductDetailApiTest extends TestCase
             ->getJson(route('product.show', ['product' => $this->product]));
         $response->assertForbidden();
     }
+
+    /**
+     * @test
+     */
+    public function should_response_404_when_product_not_found()
+    {
+        $response = $this->actingAs($this->user)
+            ->getJson(route('product.show', ['product' => 5]));
+        $response->assertNotFound();
+    }
 }

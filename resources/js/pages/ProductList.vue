@@ -22,6 +22,11 @@
               </b-badge>&nbsp;
             </span>
           </div>
+          <b-button
+            :to="`/products/${product.id}`"
+            variant="primary"
+            class="mt-3"
+          >詳細</b-button>
         </b-card>
       </b-col>
     </b-row>
