@@ -14,4 +14,14 @@ class ProductPolicy
     {
         return $user->id === $product->user_id;
     }
+
+    public function edit(User $user, Product $product): bool
+    {
+        return $user->id === $product->user_id;
+    }
+
+    public function createLink(User $user, Product $product): bool
+    {
+        return $user->id === $product->user_id;
+    }
 }

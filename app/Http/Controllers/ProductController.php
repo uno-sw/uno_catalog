@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\EditProduct;
 use App\Http\Requests\RegisterProduct;
 use App\Http\Resources\ProductDetailResource;
 use App\Http\Resources\ProductIndexResource;
@@ -30,17 +31,12 @@ class ProductController extends Controller
 
     public function register(RegisterProduct $request)
     {
-        $validated = $request->validated();
-
-        $product = Auth::user()->products()->create($validated);
-
-        if (array_key_exists('tags', $validated)) {
-            $product->tags = $validated['tags'];
-        }
-
-        if (array_key_exists('links', $validated)) {
-            $product->links()->createMany($validated['links']);
-        }
+        $product = new Product();
+        $product->name = $request->name;
+        $product->price = $request->price;
+        $product->note = $request->note;
+        Auth::user()->products()->save($product);
+        $product->tags = $request->tags;
 
         return response()->json(['id' => $product->id], 201);
     }
@@ -49,5 +45,18 @@ class ProductController extends Controller
     {
         $this->authorize('view', $product);
         return new ProductDetailResource($product);
+    }
+
+    public function edit(Product $product, EditProduct $request)
+    {
+        $this->authorize('edit', $product);
+
+        $product->name = $request->name;
+        $product->price = $request->price;
+        $product->note = $request->note;
+        $product->save();
+        $product->tags = $request->tags;
+
+        return response()->json(['id' => $product->id]);
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\Product;
 
 use App\Models\Product;
 use App\Models\User;
@@ -28,7 +28,7 @@ class ProductRegisterApiTest extends TestCase
         $response = $this->postJson(route('product.register'), [
             'name' => 'Test',
         ]);
-        $response->assertStatus(401);
+        $response->assertUnauthorized();
         $this->assertEquals($productCount, Product::count());
     }
 
@@ -42,16 +42,12 @@ class ProductRegisterApiTest extends TestCase
             'price' => 1980,
             'note' => 'Test',
             'tags' => ['Apple', 'Banana', 'Orange'],
-            'links' => [
-                ['title' => 'Test', 'url' => 'https://example.com'],
-                ['title' => 'Google', 'url' => 'https://www.google.co.jp'],
-            ],
         ];
 
         $response = $this->actingAs($this->user)
             ->postJson(route('product.register'), $data);
 
-        $response->assertStatus(201);
+        $response->assertCreated();
         $this->assertNotNull($response['id']);
         $product = $this->user->products()->find($response['id']);
         $this->assertNotNull($product);
@@ -59,7 +55,6 @@ class ProductRegisterApiTest extends TestCase
         $this->assertEquals($data['price'], $product->price);
         $this->assertEquals($data['note'], $product->note);
         $this->assertEquals(collect($data['tags']), $product->tagLabels);
-        $this->assertEquals(count($data['links']), $product->links()->count());
     }
 
     /**
@@ -178,93 +173,21 @@ class ProductRegisterApiTest extends TestCase
         $response->assertStatus(422);
         $this->assertEquals($productCount, Product::count());
 
+        // more than 10 tags
         $response = $this->actingAs($this->user)
             ->postJson(route('product.register'), [
                 'name' => 'Test',
                 'tags' => ['a', 'b', 'c', 'd', 'e',
-                           'f', 'g', 'h', 'i', 'j', 'k'],  // タグが10個を超えている
+                           'f', 'g', 'h', 'i', 'j', 'k'],
             ]);
         $response->assertStatus(422);
         $this->assertEquals($productCount, Product::count());
 
+        // contains tag of more than 20 characters
         $response = $this->actingAs($this->user)
             ->postJson(route('product.register'), [
                 'name' => 'Test',
-                'tags' => ['test', 'Lorem ipsum dolor sit'],  // 20文字を超えるタグを含んでいる
-            ]);
-        $response->assertStatus(422);
-        $this->assertEquals($productCount, Product::count());
-    }
-
-    /**
-     * @test
-     */
-    public function should_not_register_product_with_invalid_links()
-    {
-        $productCount = Product::count();
-        $response = $this->actingAs($this->user)
-            ->postJson(route('product.register'), [
-                'name' => 'Test',
-                'links' => 'test',
-            ]);
-        $response->assertStatus(422);
-        $this->assertEquals($productCount, Product::count());
-
-        $response = $this->actingAs($this->user)
-            ->postJson(route('product.register'), [
-                'name' => 'Test',
-                'links' => [['url' => 'https://example.com']],  // titleが無い
-            ]);
-        $response->assertStatus(422);
-        $this->assertEquals($productCount, Product::count());
-
-        $response = $this->actingAs($this->user)
-            ->postJson(route('product.register'), [
-                'name' => 'Test',
-                'links' => [['title' => 'Test']],  // urlが無い
-            ]);
-        $response->assertStatus(422);
-        $this->assertEquals($productCount, Product::count());
-
-        $response = $this->actingAs($this->user)
-            ->postJson(route('product.register'), [
-                'name' => 'Test',
-                'links' => [
-                    ['title' => 'a', 'url' => 'http://example.com'],
-                    ['title' => 'b', 'url' => 'http://example.com'],
-                    ['title' => 'c', 'url' => 'http://example.com'],
-                    ['title' => 'd', 'url' => 'http://example.com'],
-                    ['title' => 'e', 'url' => 'http://example.com'],
-                    ['title' => 'f', 'url' => 'http://example.com'],
-                    ['title' => 'g', 'url' => 'http://example.com'],
-                    ['title' => 'h', 'url' => 'http://example.com'],
-                    ['title' => 'i', 'url' => 'http://example.com'],
-                    ['title' => 'j', 'url' => 'http://example.com'],
-                    ['title' => 'k', 'url' => 'http://example.com'],
-                ],  // リンクが10個を超えている
-            ]);
-        $response->assertStatus(422);
-        $this->assertEquals($productCount, Product::count());
-
-        $response = $this->actingAs($this->user)
-            ->postJson(route('product.register'), [
-                'name' => 'Test',
-                'links' => [
-                    [
-                        'title' => 'Lorem ipsum dolor sit',  // titleが20文字を超えている
-                        'url' => 'https://example.com',
-                    ],
-                ],
-            ]);
-        $response->assertStatus(422);
-        $this->assertEquals($productCount, Product::count());
-
-        $response = $this->actingAs($this->user)
-            ->postJson(route('product.register'), [
-                'name' => 'Test',
-                'links' => [
-                    ['title' => 'Test', 'url' => 'test'],  // URLが有効な形式でない
-                ],
+                'tags' => ['test', 'Lorem ipsum dolor sit'],
             ]);
         $response->assertStatus(422);
         $this->assertEquals($productCount, Product::count());

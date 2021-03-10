@@ -10,4 +10,12 @@ class Link extends Model
     use HasFactory;
 
     protected $fillable = ['title', 'url'];
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
+    }
 }

@@ -49,9 +49,13 @@ class Product extends Model
 
     public function setTagsAttribute(array $tags): void
     {
-        $tagIds = array_map(
-            fn($tag) => Tag::firstOrCreate(['label' => $tag])->id,
-            $tags);
-        $this->tags()->sync($tagIds);
+        if ($tags) {
+            $tagIds = array_map(
+                fn($tag) => Tag::firstOrCreate(['label' => $tag])->id,
+                $tags);
+            $this->tags()->sync($tagIds);
+        } else {
+            $this->tags()->sync([]);
+        }
     }
 }
