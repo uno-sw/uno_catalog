@@ -59,4 +59,11 @@ class ProductController extends Controller
 
         return response()->json(['id' => $product->id]);
     }
+
+    public function delete(Product $product)
+    {
+        $this->authorize('delete', $product);
+        $product->delete();
+        return response()->json(['id' => $product->id]);
+    }
 }

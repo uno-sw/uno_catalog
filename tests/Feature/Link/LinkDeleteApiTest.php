@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\Link;
 
 use App\Models\Link;
 use App\Models\Product;
@@ -9,7 +9,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
-class ProuductLinkDeleteApiTest extends TestCase
+class LinkDeleteApiTest extends TestCase
 {
     use RefreshDatabase;
 

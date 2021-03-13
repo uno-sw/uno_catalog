@@ -11,4 +11,12 @@ class Tag extends Model
     use HasFactory;
 
     protected $fillable = ['label'];
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function products()
+    {
+        return $this->belongsToMany(Product::class);
+    }
 }
