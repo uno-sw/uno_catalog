@@ -27,4 +27,6 @@ Route::get('/products', [ProductController::class, 'index'])->name('product.inde
 Route::post('/products', [ProductController::class, 'register'])->name('product.register');
 Route::get('/products/{product}', [ProductController::class, 'show'])->name('product.show');
 Route::put('/products/{product}', [ProductController::class, 'edit'])->name('product.edit');
+
 Route::post('/products/{product}/links', [LinkController::class, 'create'])->name('link.create');
+Route::delete('/links/{link}', [LinkController::class, 'delete'])->name('link.delete');

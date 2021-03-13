@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateLink;
+use App\Models\Link;
 use App\Models\Product;
 use Illuminate\Http\Request;
 
@@ -18,5 +19,13 @@ class LinkController extends Controller
         $this->authorize('createLink', $product);
         $link = $product->links()->create($request->validated());
         return response()->json(['id' => $link->id], 201);
+    }
+
+    public function delete(Link $link)
+    {
+        $this->authorize('delete', $link);
+        $id = $link->id;
+        $link->delete();
+        return response()->json(['id' => $id]);
     }
 }
