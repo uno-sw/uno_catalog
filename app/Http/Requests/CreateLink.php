@@ -35,7 +35,9 @@ class CreateLink extends FormRequest
     public function messages()
     {
         return [
+            'title.required' => 'タイトルが入力されていません',
             'title.max' => 'タイトルは20文字以下で入力してください',
+            'url.required' => 'URLが入力されていません',
             'url.url' => 'URLが不正な形式です',
             'url.max' => 'URLは100文字以下で入力してください'
         ];

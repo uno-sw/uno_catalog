@@ -11,12 +11,30 @@
           </b-badge>&nbsp;
         </span>
       </div>
-      <ul v-if="product.links && product.links.length > 0" class="mt-3 pl-4">
-        <li v-for="link in product.links" :key="link.url">
-          <a :href="link.url">{{ link.title }}</a>
-        </li>
-      </ul>
-      <pre v-if="product.note" :class="$style.note">{{ product.note }}</pre>
+      <dl
+        v-if="product.links && product.links.length > 0 || product.note"
+        class="mt-3 mb-0"
+      >
+        <dt v-if="product.links && product.links.length > 0">リンク</dt>
+        <dd>
+          <ul v-if="product.links && product.links.length > 0" class="mb-0 pl-4">
+            <li v-for="link in product.links" :key="link.url">
+              <a :href="link.url">{{ link.title }}</a>
+            </li>
+          </ul>
+        </dd>
+        <dt v-if="product.note">メモ</dt>
+        <dd>
+          <pre
+            v-if="product.note"
+            class="mb-0"
+            :class="$style.note"
+          >{{ product.note }}</pre>
+        </dd>
+      </dl>
+      <b-button :to="`/products/${id}/edit`" class="mt-4">
+        編集
+      </b-button>
     </b-card>
   </div>
 </template>

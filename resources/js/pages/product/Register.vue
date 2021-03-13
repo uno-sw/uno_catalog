@@ -55,21 +55,6 @@
           </b-form-group>
 
           <b-form-group
-            label="リンク"
-            :state="errors.links ? false : null"
-            :invalid-feedback="errors.links"
-          >
-            <ul v-if="values.links.length !== 0">
-              <li v-for="link in values.links" :key="link.id">
-                <strong>{{ link.title }}</strong> - {{ link.url }}
-                <b-button-close aria-label="削除" @click="removeLink(link.id)" />
-              </li>
-            </ul>
-            <b-button variant="light" v-b-modal.add-link>追加</b-button>
-            <AddLinkModal @addLink="addLink" />
-          </b-form-group>
-
-          <b-form-group
             label="メモ"
             label-for="note"
             :state="errors.note ? false : null"
@@ -95,38 +80,24 @@
 
 <script>
 import { CREATED, UNPROCESSABLE_ENTITY } from '../../util'
-import AddLinkModal from '../../components/product/create/AddLinkModal'
 
 export default {
-  components: {
-    AddLinkModal,
-  },
   data() {
     return {
       values: {
         name: '',
         price: '',
         tags: [],
-        links: [],
         note: '',
       },
-      linksNextId: 0,
       errors: {},
     }
   },
   methods: {
-    addLink({ title, url }) {
-      this.values.links.push({ id: this.linksNextId++, title, url })
-    },
-    removeLink(id) {
-      const indexToRemove = this.values.links.findIndex(link => link.id === id)
-      this.values.links.splice(indexToRemove, 1)
-    },
     async register() {
       const response = await axios.post('/api/products', this.values)
 
       if (response.status === UNPROCESSABLE_ENTITY) {
-        console.log(response.data.errors)
         this.errors = this.formatErrorMessages(response.data.errors)
         return false
       }
@@ -159,10 +130,6 @@ export default {
         const tagsKey = Object.keys(errors).find(key => /^tags($|\.)/.test(key))
         if (tagsKey && errors[tagsKey] && errors[tagsKey].length >= 1) {
           ret['tags'] = errors[tagsKey][0]
-        }
-        const linksKey = Object.keys(errors).find(key => /^links($|\.)/.test(key))
-        if (linksKey && errors[linksKey] && errors[linksKey].length >= 1) {
-          ret['links'] = errors[linksKey][0]
         }
       }
       return ret

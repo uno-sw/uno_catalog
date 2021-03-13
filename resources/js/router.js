@@ -4,6 +4,7 @@ import VueRouter from 'vue-router'
 import ProductList from './pages/ProductList.vue'
 import Login from './pages/Login.vue'
 import ProductDetail from './pages/product/Detail.vue'
+import ProductEdit from './pages/product/Edit.vue'
 import RegisterProduct from './pages/product/Register.vue'
 import NotFound from './pages/errors/NotFound.vue'
 import SystemError from './pages/errors/System.vue'
@@ -31,6 +32,11 @@ const routes = [
   {
     path: '/products/:id',
     component: ProductDetail,
+    props: true,
+  },
+  {
+    path: '/products/:id/edit',
+    component: ProductEdit,
     props: true,
   },
   {
