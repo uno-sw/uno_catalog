@@ -21,10 +21,11 @@ class ProductController extends Controller
         $products = Auth::user()
             ->products()
             ->orderBy('price', 'asc')
+            ->orderBy('id', 'asc')
             ->with(['tags' => function ($query) {
-                $query->withPivot(['created_at'])->orderBy('pivot_created_at');
+                $query->withPivot(['id'])->orderBy('pivot_id');
             }])
-            ->paginate();
+            ->paginate(9);
 
         return ProductIndexResource::collection($products);
     }

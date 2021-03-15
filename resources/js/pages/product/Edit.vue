@@ -84,6 +84,9 @@
       </div>
       <AddLinkModal :productId="id" @addLink="fetchProduct" />
     </FormSection>
+    <FormSection title="製品を削除">
+      <b-button block variant="danger" @click="deleteProduct">この製品を削除</b-button>
+    </FormSection>
   </div>
 </template>
 
@@ -155,6 +158,7 @@ export default {
         `${title}を削除してもよろしいですか？`,
         {
           okTitle: '削除',
+          okVariant: 'danger',
           cancelTitle: 'キャンセル',
         },
       )
@@ -170,6 +174,36 @@ export default {
         }
 
         await this.fetchProduct();
+      }
+    },
+    async deleteProduct() {
+      const result = await this.$bvModal.msgBoxConfirm(
+        '削除した製品は元に戻せません。',
+        {
+          title: `${this.values.name}を削除します`,
+          okTitle: '削除',
+          okVariant: 'danger',
+          cancelTitle: 'キャンセル',
+        },
+      )
+
+      if (result) {
+        const response = await axios.delete(`/api/products/${this.id}`)
+
+        if (response.status !== OK) {
+          this.$bvToast.toast(`製品「${this.values.name}」の削除に失敗しました`, {
+            variant: 'danger',
+            solid: true,
+          })
+          return false
+        }
+
+        this.$store.commit('message/setMessage', {
+          content: `製品「${this.values.name}」を削除しました`,
+          variant: 'success',
+          dismissible: true,
+        })
+        this.$router.push('/')
       }
     },
     formatErrorMessages(errors) {

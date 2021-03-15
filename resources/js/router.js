@@ -18,6 +18,10 @@ const routes = [
     path: '/',
     component: ProductList,
     meta: { auth: true },
+    props: route => {
+      const page = route.query.page
+      return { page: /^[1-9][0-9]*$/.test(page) ? Number(page) : 1 }
+    },
   },
   {
     path: '/login',
@@ -51,7 +55,10 @@ const routes = [
 
 const router = new VueRouter({
   mode: 'history',
-  routes
+  scrollBehavior() {
+    return { x: 0, y: 0 }
+  },
+  routes,
 })
 
 router.beforeEach((to, from, next) => {

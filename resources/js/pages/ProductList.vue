@@ -1,7 +1,7 @@
 <template>
   <div>
-    <h1>Product List</h1>
-    <b-row>
+    <h1 class="mb-4">製品一覧</h1>
+    <b-row v-if="products && products.length > 0">
       <b-col
         lg="4"
         md="6"
@@ -30,6 +30,18 @@
         </b-card>
       </b-col>
     </b-row>
+    <b-alert v-if="products && products.length === 0" show variant="info">
+      表示できる製品はありません。
+    </b-alert>
+    <b-pagination-nav
+      v-if="products && products.length > 0"
+      :value="currentPage"
+      :link-gen="linkGen"
+      :number-of-pages="lastPage"
+      align="center"
+      use-router
+      class="mt-4"
+    />
   </div>
 </template>
 
@@ -37,14 +49,23 @@
 import { OK } from '../util'
 
 export default {
+  props: {
+    page: {
+      type: Number,
+      required: false,
+      default: 1,
+    },
+  },
   data() {
     return {
-      products: [],
+      products: null,
+      currentPage: 0,
+      lastPage: 0,
     }
   },
   methods: {
     async fetchProducts() {
-      const response = await axios.get('api/products')
+      const response = await axios.get(`api/products/?page=${this.page}`)
 
       if (response.status !== OK) {
         this.$store.commit('error/setCode', response.status)
@@ -52,7 +73,12 @@ export default {
       }
 
       this.products = response.data.data
+      this.currentPage = response.data.meta.current_page
+      this.lastPage = response.data.meta.last_page
     },
+    linkGen(pageNum) {
+      return `?page=${pageNum}`
+    }
   },
   watch: {
     $route: {
