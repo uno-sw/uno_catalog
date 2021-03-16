@@ -8,6 +8,9 @@
         v-for="product in products" :key="product.id">
         <b-card
           :title="product.name"
+          :img-src="product.image_url"
+          :img-alt="`${product.name}の画像`"
+          img-top
           title-tag="h5"
           class="my-2"
         >

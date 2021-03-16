@@ -66,6 +66,19 @@
           />
         </b-form-group>
 
+        <b-form-group
+          label="画像URL"
+          label-for="image-url"
+          :state="errors.image_url ? false : null"
+          :invalid-feedback="errors.image_url"
+        >
+          <b-form-input
+            id="image-url"
+            v-model="values.image_url"
+            :state="errors.image_url ? false : null"
+          />
+        </b-form-group>
+
         <div class="text-right">
           <b-button type="submit" variant="primary">変更を適用</b-button>
         </div>
@@ -113,6 +126,7 @@ export default {
         price: '',
         tags: [],
         note: '',
+        image_url: '',
       },
       links: [],
       errors: {},
@@ -131,6 +145,7 @@ export default {
       this.values.price = response.data.data.price
       this.values.note = response.data.data.note
       this.values.tags = response.data.data.tags.map(tag => tag.label)
+      this.values.image_url = response.data.data.image_url
       this.links = response.data.data.links
     },
     async edit() {
@@ -209,17 +224,20 @@ export default {
     formatErrorMessages(errors) {
       const ret = {}
       if (errors) {
-        if (errors.name && errors.name.length >= 1) {
+        if (errors.name && errors.name.length > 0) {
           ret['name'] = errors.name[0]
         }
-        if (errors.price && errors.price.length >= 1) {
+        if (errors.price && errors.price.length > 0) {
           ret['price'] = errors.price[0]
         }
-        if (errors.note && errors.note.length >= 1) {
+        if (errors.note && errors.note.length > 0) {
           ret['note'] = errors.note[0]
         }
+        if (errors.image_url && errors.image_url.length > 0) {
+          ret['image_url'] = errors.image_url[0]
+        }
         const tagsKey = Object.keys(errors).find(key => /^tags($|\.)/.test(key))
-        if (tagsKey && errors[tagsKey] && errors[tagsKey].length >= 1) {
+        if (tagsKey && errors[tagsKey] && errors[tagsKey].length > 0) {
           ret['tags'] = errors[tagsKey][0]
         }
       }
