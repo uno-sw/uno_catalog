@@ -16,10 +16,11 @@ class ProductIndexResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'id' => $this->resource->id,
-            'name' => $this->resource->name,
-            'price' => $this->resource->price,
+            'id' => $this->id,
+            'name' => $this->name,
+            'price' => $this->price,
             'tags' => TagResource::collection($this->whenLoaded('tags')),
+            'image_url' => $this->image_url,
         ];
     }
 }

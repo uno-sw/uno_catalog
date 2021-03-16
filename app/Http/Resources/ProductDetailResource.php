@@ -21,6 +21,7 @@ class ProductDetailResource extends JsonResource
             'note' => $this->note,
             'tags' => TagResource::collection($this->tags),
             'links' => LinkResource::collection($this->links),
+            'image_url' => $this->image_url,
         ];
     }
 }

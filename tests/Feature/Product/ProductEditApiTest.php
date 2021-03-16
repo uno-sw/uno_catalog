@@ -23,6 +23,7 @@ class ProductEditApiTest extends TestCase
             'name' => 'Test',
             'price' => 1980,
             'note' => 'Test',
+            'image_url' => 'https://example.com/test/image.png',
         ]);
         $this->product->tags = ['Apple', 'Banana', 'Orange'];
     }
@@ -68,13 +69,14 @@ class ProductEditApiTest extends TestCase
     /**
      * @test
      */
-    public function should_edit_product()
+    public function should_edit_product_with_max_parameters()
     {
         $data = [
             'name' => 'Foobar',
             'price' => 7678,
             'note' => 'Foobar',
             'tags' => ['Test'],
+            'image_url' => 'https://example.com/test/image.jpg?query#section',
         ];
 
         $response = $this->actingAs($this->user)
@@ -88,7 +90,56 @@ class ProductEditApiTest extends TestCase
         $this->assertEquals($data['name'], $product->name);
         $this->assertEquals($data['price'], $product->price);
         $this->assertEquals($data['note'], $product->note);
-        $this->assertEquals(collect($data['tags']), $product->tagLabels);
+        $this->assertEquals($data['image_url'], $product->image_url);
+        $this->assertEquals($data['tags'], $product->tagLabels);
+    }
+
+    /**
+     * @test
+     */
+    public function should_edit_product_with_min_parameters()
+    {
+        $response = $this->actingAs($this->user)
+            ->putJson(route('product.edit', ['product' => $this->product]), [
+                'name' => 'Foobar'
+            ]);
+
+        $response->assertOk();
+        $this->assertNotNull($response['id']);
+        $product = $this->user->products()->find($response['id']);
+        $this->assertNotNull($product);
+        $this->assertEquals('Foobar', $product->name);
+        $this->assertEquals('', $product->price);
+        $this->assertEquals('', $product->note);
+        $this->assertEquals('', $product->image_url);
+        $this->assertEquals([], $product->tagLabels);
+    }
+
+    /**
+     * @test
+     */
+    public function should_edit_product_with_valid_image_url()
+    {
+        $response = $this->actingAs($this->user)
+            ->putJson(route('product.edit', ['product' => $this->product]), [
+                'name' => 'Test',
+                'image_url' => 'https://example.com/test/image.jpeg?query#section',
+            ]);
+        $response->assertOk();
+
+        $response = $this->actingAs($this->user)
+            ->putJson(route('product.edit', ['product' => $this->product]), [
+                'name' => 'Test',
+                'image_url' => 'https://example.com/test/image.jpg?query#section',
+            ]);
+        $response->assertOk();
+
+        $response = $this->actingAs($this->user)
+            ->putJson(route('product.edit', ['product' => $this->product]), [
+                'name' => 'Test',
+                'image_url' => 'https://example.com/test/image.png?query#section',
+            ]);
+        $response->assertOk();
     }
 
     /**
@@ -225,5 +276,55 @@ class ProductEditApiTest extends TestCase
             ]);
         $response->assertStatus(422);
         $this->assertEquals($tagLabels, Product::first()->tagLabels);
+    }
+
+    /**
+     * @test
+     */
+    public function should_not_edit_product_with_invalid_image_url()
+    {
+        $image_url = $this->product->image_url;
+
+        // invalid URL
+        $response = $this->actingAs($this->user)
+            ->putJson(route('product.edit', ['product' => $this->product]), [
+                'name' => 'Test',
+                'image_url' => 'test',
+            ]);
+        $response->assertStatus(422);
+        $this->assertEquals($image_url, Product::first()->image_url);
+
+        // URL not include file name
+        $response = $this->actingAs($this->user)
+            ->putJson(route('product.edit', ['product' => $this->product]), [
+                'name' => 'Test',
+                'image_url' => 'http://example.com',
+            ]);
+        $response->assertStatus(422);
+        $this->assertEquals($image_url, Product::first()->image_url);
+
+        // file extension is neither .jpg, .jpeg nor .png
+        $response = $this->actingAs($this->user)
+            ->putJson(route('product.edit', ['product' => $this->product]), [
+                'name' => 'Test',
+                'image_url' => 'http://example.com/example.gif',
+            ]);
+        $response->assertStatus(422);
+        $this->assertEquals($image_url, Product::first()->image_url);
+
+        // more than 255 characters
+        $response = $this->actingAs($this->user)
+            ->putJson(route('product.edit', ['product' => $this->product]), [
+                'name' => 'Test',
+                'image_url' => 'https://example.com/lorem/ipsum/dolor/sit/' .
+                               'amet/consectetur/adipisicing/elit/sed/do/' .
+                               'eiusmod/tempor/incididunt/ut/labore/et/' .
+                               'dolore/magna/aliqua/ut/enim/ad/minim/veniam/' .
+                               'quis/nostrud/exercitation/ullamco/laboris/' .
+                               'nisi/ut/aliquip/ex/ea/commodo/consequat/duis/' .
+                               'image.png',
+            ]);
+        $response->assertStatus(422);
+        $this->assertEquals($image_url, Product::first()->image_url);
     }
 }

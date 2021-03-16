@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\ImageUrl;
 use Illuminate\Foundation\Http\FormRequest;
 
 class RegisterProduct extends FormRequest
@@ -24,11 +25,12 @@ class RegisterProduct extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|string|max:100',
-            'price' => 'integer|nullable',
-            'note' => 'string|nullable',
-            'tags' => 'array|nullable|max:10',
-            'tags.*' => 'string|max:20',
+            'name' => ['required', 'string', 'max:100'],
+            'price' => ['integer', 'nullable'],
+            'note' => ['string', 'nullable'],
+            'tags' => ['array', 'nullable', 'max:10'],
+            'tags.*' => ['string', 'max:20'],
+            'image_url' => ['url', 'nullable', 'max:255', new ImageUrl],
         ];
     }
 
@@ -43,6 +45,8 @@ class RegisterProduct extends FormRequest
             'price.integer' => '価格は整数で入力してください',
             'tags.max' => '登録できるタグは10個までです',
             'tags.*.max' => 'それぞれのタグは20文字以下で入力してください',
+            'image_url.url' => '画像URLが無効なURL形式です',
+            'image_url.max' => '画像URLは255文字以下で入力してください',
         ];
     }
 }

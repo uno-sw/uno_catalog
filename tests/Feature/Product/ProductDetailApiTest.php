@@ -48,6 +48,7 @@ class ProductDetailApiTest extends TestCase
                     'links' => $this->product->links->map(function ($link) {
                         return ['title' => $link->title, 'url' => $link->url];
                     })->all(),
+                    'image_url' => $this->product->image_url,
                 ],
             ]);
     }

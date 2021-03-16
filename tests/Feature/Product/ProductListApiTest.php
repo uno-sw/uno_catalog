@@ -43,6 +43,7 @@ class ProductListApiTest extends TestCase
                 'tags' => $product->tags->map(function ($tag) {
                     return ['label' => $tag->label];
                 })->all(),
+                'image_url' => $product->image_url,
             ];
         });
     }
