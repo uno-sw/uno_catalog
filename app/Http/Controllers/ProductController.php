@@ -36,8 +36,12 @@ class ProductController extends Controller
         $product->name = $request->name;
         $product->price = $request->price;
         $product->note = $request->note;
+        $product->image_url = $request->image_url;
         Auth::user()->products()->save($product);
-        $product->tags = $request->tags;
+
+        if ($request->tags) {
+            $product->tags = $request->tags;
+        }
 
         return response()->json(['id' => $product->id], 201);
     }
@@ -55,8 +59,14 @@ class ProductController extends Controller
         $product->name = $request->name;
         $product->price = $request->price;
         $product->note = $request->note;
+        $product->image_url = $request->image_url;
         $product->save();
-        $product->tags = $request->tags;
+
+        $tags = [];
+        if ($request->tags) {
+            $tags = $request->tags;
+        }
+        $product->tags = $tags;
 
         return response()->json(['id' => $product->id]);
     }

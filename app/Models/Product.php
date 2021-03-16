@@ -9,7 +9,7 @@ class Product extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'price', 'note'];
+    protected $fillable = ['name', 'price', 'note', 'image_url'];
 
     protected $casts = [
         'user_id' => 'integer',
@@ -44,7 +44,7 @@ class Product extends Model
      */
     public function getTagLabelsAttribute()
     {
-        return $this->tags->map(fn($tag) => $tag->label);
+        return $this->tags->map(fn($tag) => $tag->label)->all();
     }
 
     public function setTagsAttribute(array $tags): void
