@@ -6,6 +6,7 @@ import Login from './pages/Login.vue'
 import ProductDetail from './pages/product/Detail.vue'
 import ProductEdit from './pages/product/Edit.vue'
 import RegisterProduct from './pages/product/Register.vue'
+import TagList from './pages/TagList.vue'
 import NotFound from './pages/errors/NotFound.vue'
 import SystemError from './pages/errors/System.vue'
 
@@ -42,6 +43,26 @@ const routes = [
     path: '/products/:id/edit',
     component: ProductEdit,
     props: true,
+  },
+  {
+    path: '/tags',
+    component: TagList,
+    meta: { auth: true },
+    props: route => {
+      const numberRegex = /^[1-9][0-9]*$/
+      let selected = route.query.selected
+      if (Array.isArray(selected)) {
+        selected = selected.reduce((prev, value) => {
+          if (numberRegex.test(value)) {
+            prev.push(Number(value))
+          }
+          return prev
+        }, [])
+      } else {
+        selected = numberRegex.test(selected) ? [Number(selected)] : []
+      }
+      return { selected: selected }
+    },
   },
   {
     path: '/500',

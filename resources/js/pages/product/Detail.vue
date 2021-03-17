@@ -36,7 +36,7 @@
             </dd>
           </dl>
         </b-col>
-        <b-col lg="6">
+        <b-col lg="6" class="d-flex justify-content-end">
           <b-img
             v-if="product.image_url"
             class="mt-3"
