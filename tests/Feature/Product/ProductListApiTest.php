@@ -15,14 +15,19 @@ class ProductListApiTest extends TestCase
         parent::setUp();
 
         $users = \App\Models\User::factory()->count(2)->create();
-        $tags = \App\Models\Tag::factory()->count(3)->create();
 
         foreach ($users as $user) {
-            Product::factory()
-                ->count(20)
+            $products = Product::factory()
+                ->count(25)
                 ->for($user)
-                ->hasAttached($tags)
                 ->create();
+            $products[0]->tags = ['Apple'];
+            $products[1]->tags = ['Banana'];
+            $products[2]->tags = ['Orange'];
+            $products[3]->tags = ['Apple', 'Banana'];
+            $products[4]->tags = ['Apple', 'Orange'];
+            $products[5]->tags = ['Banana', 'Orange'];
+            $products[6]->tags = ['Apple', 'Banana', 'Orange'];
         }
 
         $this->user = $users[0];
@@ -41,7 +46,10 @@ class ProductListApiTest extends TestCase
                 'name' => $product->name,
                 'price' => $product->price,
                 'tags' => $product->tags->map(function ($tag) {
-                    return ['label' => $tag->label];
+                    return [
+                        'id' => $tag->id,
+                        'label' => $tag->label,
+                    ];
                 })->all(),
                 'image_url' => $product->image_url,
             ];
@@ -66,27 +74,27 @@ class ProductListApiTest extends TestCase
         $response = $this->actingAs($this->user)
             ->getJson(route('product.index'));
         $response->assertOk()
-            ->assertJsonCount(9, 'data')
-            ->assertJson(['data' => $this->expected_data->take(9)->all()]);
+            ->assertJsonCount(12, 'data')
+            ->assertJson(['data' => $this->expected_data->take(12)->all()]);
 
         $response = $this->actingAs($this->user)
-            ->getJson('/api/products/?page=2');
+            ->getJson(route('product.index', ['page' => 2]));
         $response->assertOk()
-            ->assertJsonCount(9, 'data')
+            ->assertJsonCount(12, 'data')
             ->assertJson([
-                'data' => $this->expected_data->slice(9, 9)->values()->all(),
+                'data' => $this->expected_data->slice(12, 12)->values()->all(),
             ]);
 
         $response = $this->actingAs($this->user)
-            ->getJson('/api/products/?page=3');
+            ->getJson(route('product.index', ['page' => 3]));
         $response->assertOk()
-            ->assertJsonCount(2, 'data')
+            ->assertJsonCount(1, 'data')
             ->assertJson([
-                'data' => $this->expected_data->slice(18)->values()->all()
+                'data' => $this->expected_data->slice(24)->values()->all()
             ]);
 
         $response = $this->actingAs($this->user)
-            ->getJson('/api/products/?page=4');
+            ->getJson(route('product.index', ['page' => 4]));
         $response->assertOk()
             ->assertJsonCount(0, 'data')
             ->assertJson(['data' => []]);
@@ -98,28 +106,46 @@ class ProductListApiTest extends TestCase
     public function should_return_first_page_when_invalid_page_requested()
     {
         $response = $this->actingAs($this->user)
-            ->getJson('/api/products/?page=0');
+            ->getJson(route('product.index', ['page' => 0]));
         $response->assertOk()
-            ->assertJsonCount(9, 'data')
-            ->assertJson(['data' => $this->expected_data->take(9)->all()]);
+            ->assertJsonCount(12, 'data')
+            ->assertJson(['data' => $this->expected_data->take(12)->all()]);
 
         $response = $this->actingAs($this->user)
-            ->getJson('/api/products/?page=-5');
+            ->getJson(route('product.index', ['page' => -5]));
         $response->assertOk()
-            ->assertJsonCount(9, 'data')
-            ->assertJson(['data' => $this->expected_data->take(9)->all()]);
+            ->assertJsonCount(12, 'data')
+            ->assertJson(['data' => $this->expected_data->take(12)->all()]);
 
         $response = $this->actingAs($this->user)
-            ->getJson('/api/products/?page=2.5');
+            ->getJson(route('product.index', ['page' => 2.5]));
         $response->assertOk()
-            ->assertJsonCount(9, 'data')
-            ->assertJson(['data' => $this->expected_data->take(9)->all()]);
+            ->assertJsonCount(12, 'data')
+            ->assertJson(['data' => $this->expected_data->take(12)->all()]);
 
         $response = $this->actingAs($this->user)
-            ->getJson('/api/products/?page=test');
+            ->getJson(route('product.index', ['page' => 'test']));
         $response->assertOk()
-            ->assertJsonCount(9, 'data')
-            ->assertJson(['data' => $this->expected_data->take(9)->all()]);
+            ->assertJsonCount(12, 'data')
+            ->assertJson(['data' => $this->expected_data->take(12)->all()]);
+    }
 
+    /**
+     * @test
+     */
+    public function should_return_products_filtered_by_tags()
+    {
+        $response = $this->actingAs($this->user)
+            ->getJson(route('product.index', ['tag' => [1]]));
+        $response->assertOk()->assertJsonCount(4, 'data');
+
+        $response = $this->actingAs($this->user)
+            ->getJson(route('product.index', ['tag' => [1, 2]]));
+        $response->assertOk()->assertJsonCount(2, 'data');
+
+        // ignore page param if tag param provided
+        $response = $this->actingAs($this->user)
+            ->getJson(route('product.index', ['tag' => [2], 'page' => 2]));
+        $response->assertOk()->assertJsonCount(4, 'data');
     }
 }

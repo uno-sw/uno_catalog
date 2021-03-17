@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class TagResource extends JsonResource
+class TagIndexResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -17,6 +17,7 @@ class TagResource extends JsonResource
         return [
             'id' => $this->id,
             'label' => $this->label,
+            'product_count' => $this->products()->count(),
         ];
     }
 }

@@ -3,6 +3,7 @@
 namespace Tests\Feature\Product;
 
 use App\Models\Product;
+use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -16,14 +17,14 @@ class ProductDetailApiTest extends TestCase
         parent::setUp();
 
         $this->users = User::factory()->count(2)->create();
+        $this->user = $this->users[0];
 
         Product::factory()
-            ->for($this->users[0])
-            ->hasTags(3)
+            ->for($this->user)
+            ->has(Tag::factory()->count(3)->for($this->user))
             ->hasLinks(3)
             ->create();
 
-        $this->user = $this->users[0];
         $this->product = $this->user->products()->first();
     }
 
@@ -75,7 +76,7 @@ class ProductDetailApiTest extends TestCase
     /**
      * @test
      */
-    public function should_response_404_when_product_not_found()
+    public function should_respond_with_404_when_product_not_found()
     {
         $response = $this->actingAs($this->user)
             ->getJson(route('product.show', ['product' => 5]));

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\LinkController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\TagController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -31,3 +32,5 @@ Route::delete('/products/{product}', [ProductController::class, 'delete'])->name
 
 Route::post('/products/{product}/links', [LinkController::class, 'create'])->name('link.create');
 Route::delete('/links/{link}', [LinkController::class, 'delete'])->name('link.delete');
+
+Route::get('/tags', [TagController::class, 'index'])->name('tag.index');

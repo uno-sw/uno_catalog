@@ -17,7 +17,30 @@ class ProductController extends Controller
         $this->middleware('auth:sanctum');
     }
 
-    public function index() {
+    public function index(Request $request) {
+        $tag = $request->tag;
+
+        if ($tag) {
+            $tags = is_array($tag) ? $tag : [$tag];
+
+            $products = Auth::user()
+                ->products()
+                ->select('products.*')
+                ->join('product_tag', 'product_tag.product_id', '=', 'products.id')
+                ->whereIn('product_tag.tag_id', $tags)
+                ->groupBy('products.id')
+                ->havingRaw('count(DISTINCT product_tag.tag_id) = ' . count($tags))
+                ->orderBy('products.price', 'asc')
+                ->orderBy('products.id', 'asc')
+                ->limit(50)
+                ->with(['tags' => function ($query) {
+                    $query->withPivot(['id'])->orderBy('pivot_id');
+                }])
+                ->get();
+
+            return ProductIndexResource::collection($products);
+        }
+
         $products = Auth::user()
             ->products()
             ->orderBy('price', 'asc')
@@ -25,7 +48,7 @@ class ProductController extends Controller
             ->with(['tags' => function ($query) {
                 $query->withPivot(['id'])->orderBy('pivot_id');
             }])
-            ->paginate(9);
+            ->paginate(12);
 
         return ProductIndexResource::collection($products);
     }
