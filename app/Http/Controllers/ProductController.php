@@ -18,11 +18,11 @@ class ProductController extends Controller
     }
 
     public function index(Request $request) {
-        $tag = $request->tag;
+        $perPage = 12;
 
-        if ($tag) {
-            $tags = is_array($tag) ? $tag : [$tag];
+        $tags = $request->tags;
 
+        if (is_array($tags)) {
             $products = Auth::user()
                 ->products()
                 ->select('products.*')
@@ -36,7 +36,7 @@ class ProductController extends Controller
                 ->with(['tags' => function ($query) {
                     $query->withPivot(['id'])->orderBy('pivot_id');
                 }])
-                ->get();
+                ->paginate($perPage);
 
             return ProductIndexResource::collection($products);
         }
@@ -48,7 +48,7 @@ class ProductController extends Controller
             ->with(['tags' => function ($query) {
                 $query->withPivot(['id'])->orderBy('pivot_id');
             }])
-            ->paginate(12);
+            ->paginate($perPage);
 
         return ProductIndexResource::collection($products);
     }

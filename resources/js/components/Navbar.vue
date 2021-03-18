@@ -8,7 +8,6 @@
       <b-collapse id="nav-collapse" is-nav>
         <b-navbar-nav v-if="isLoggedIn">
           <b-nav-item to="/products/register">製品を登録</b-nav-item>
-          <b-nav-item to="/tags">タグ</b-nav-item>
         </b-navbar-nav>
         <b-navbar-nav class="ml-auto">
           <b-nav-item-dropdown v-if="isLoggedIn" :text="username" right>

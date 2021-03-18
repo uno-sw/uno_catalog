@@ -136,16 +136,20 @@ class ProductListApiTest extends TestCase
     public function should_return_products_filtered_by_tags()
     {
         $response = $this->actingAs($this->user)
-            ->getJson(route('product.index', ['tag' => [1]]));
+            ->getJson(route('product.index', ['tags' => [1]]));
         $response->assertOk()->assertJsonCount(4, 'data');
 
         $response = $this->actingAs($this->user)
-            ->getJson(route('product.index', ['tag' => [1, 2]]));
+            ->getJson(route('product.index', ['tags' => [1, 2]]));
         $response->assertOk()->assertJsonCount(2, 'data');
 
-        // ignore page param if tag param provided
         $response = $this->actingAs($this->user)
-            ->getJson(route('product.index', ['tag' => [2], 'page' => 2]));
-        $response->assertOk()->assertJsonCount(4, 'data');
+            ->getJson(route('product.index', ['tags' => [100]]));
+        $response->assertOk()->assertJsonCount(0, 'data');
+
+        // ingore invalid tag param
+        $response = $this->actingAs($this->user)
+            ->getJson(route('product.index', ['tags' => 'test']));
+        $response->assertOk()->assertJsonCount(12, 'data');
     }
 }

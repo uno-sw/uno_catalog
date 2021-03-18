@@ -6,7 +6,6 @@ import Login from './pages/Login.vue'
 import ProductDetail from './pages/product/Detail.vue'
 import ProductEdit from './pages/product/Edit.vue'
 import RegisterProduct from './pages/product/Register.vue'
-import TagList from './pages/TagList.vue'
 import NotFound from './pages/errors/NotFound.vue'
 import SystemError from './pages/errors/System.vue'
 
@@ -20,8 +19,23 @@ const routes = [
     component: ProductList,
     meta: { auth: true },
     props: route => {
+      const numberRegex = /^[1-9][0-9]*$/
       const page = route.query.page
-      return { page: /^[1-9][0-9]*$/.test(page) ? Number(page) : 1 }
+      let tags = route.query.tags
+      if (Array.isArray(tags)) {
+        tags = tags.reduce((prev, value) => {
+          if (numberRegex.test(value)) {
+            prev.push(Number(value))
+          }
+          return prev
+        }, [])
+      } else {
+        tags = numberRegex.test(tags) ? [Number(tags)] : []
+      }
+      return {
+        page: /^[1-9][0-9]*$/.test(page) ? Number(page) : null,
+        tags,
+      }
     },
   },
   {
@@ -43,26 +57,6 @@ const routes = [
     path: '/products/:id/edit',
     component: ProductEdit,
     props: true,
-  },
-  {
-    path: '/tags',
-    component: TagList,
-    meta: { auth: true },
-    props: route => {
-      const numberRegex = /^[1-9][0-9]*$/
-      let selected = route.query.selected
-      if (Array.isArray(selected)) {
-        selected = selected.reduce((prev, value) => {
-          if (numberRegex.test(value)) {
-            prev.push(Number(value))
-          }
-          return prev
-        }, [])
-      } else {
-        selected = numberRegex.test(selected) ? [Number(selected)] : []
-      }
-      return { selected: selected }
-    },
   },
   {
     path: '/500',

@@ -1,15 +1,46 @@
 <template>
   <div>
     <h1 class="mb-4">製品一覧</h1>
-    <b-row v-if="products && products.length > 0">
-      <b-col
-        lg="4"
-        md="6"
-        v-for="product in products" :key="product.id"
-      >
-        <ProductSummary v-bind="product" />
-      </b-col>
-    </b-row>
+    <div v-if="products && products.length > 0">
+      <b-button v-b-toggle.filter class="mb-3">絞り込み</b-button>
+      <b-sidebar id="filter" title="絞り込み" shadow>
+        <b-form class="px-3 py-2" @submit.prevent="applyFilter" @reset="resetFilter">
+          <b-form-group label="タグ" v-slot="{ ariaDescribedBy }">
+            <b-form-checkbox-group
+              v-model="selectedTags"
+              :aria-describedby="ariaDescribedBy"
+              stacked
+            >
+              <div
+                v-for="tag in allTags"
+                :key="tag.id"
+                class="d-flex justify-content-between">
+                <b-form-checkbox :value="tag.id">
+                  {{ tag.label }}
+                </b-form-checkbox>
+                <a href="#">削除</a>
+              </div>
+            </b-form-checkbox-group>
+          </b-form-group>
+          <div class="text-right">
+            <b-button type="reset">リセット</b-button>
+            <b-button type="submit" variant="primary">適用</b-button>
+          </div>
+        </b-form>
+      </b-sidebar>
+      <b-alert v-if="appliedTags && appliedTags.length > 0" variant="info" show>
+        タグ: {{ appliedTagLabels }}
+      </b-alert>
+      <b-row>
+        <b-col
+          lg="4"
+          md="6"
+          v-for="product in products" :key="product.id"
+        >
+          <ProductSummary v-bind="product" />
+        </b-col>
+      </b-row>
+    </div>
     <b-alert v-if="products && products.length === 0" show variant="info">
       表示できる製品はありません。
     </b-alert>
@@ -39,19 +70,31 @@ export default {
     page: {
       type: Number,
       required: false,
-      default: 1,
+    },
+    tags: {
+      type: Array,
+      required: false,
+      default: () => [],
     },
   },
   data() {
     return {
       products: null,
+      allTags: null,
+      selectedTags: [],
+      appliedTags: [],
       currentPage: 0,
       lastPage: 0,
     }
   },
   methods: {
-    async fetchProducts() {
-      const response = await axios.get(`/api/products/?page=${this.page}`)
+    async fetchProducts(page = 1) {
+      const response = await axios.get('/api/products', {
+        params: {
+          tags: this.appliedTags,
+          page: page,
+        },
+      })
 
       if (response.status !== OK) {
         this.$store.commit('error/setCode', response.status)
@@ -62,14 +105,55 @@ export default {
       this.currentPage = response.data.meta.current_page
       this.lastPage = response.data.meta.last_page
     },
+    async fetchTags() {
+      const response = await axios.get('/api/tags')
+
+      if (response.status !== OK) {
+        this.$store.commit('error/setCode', response.status)
+        return false
+      }
+
+      this.allTags = response.data.data
+    },
     linkGen(pageNum) {
-      return `?page=${pageNum}`
+      return this.appliedTags.length > 0
+          ? { query: { tags: this.appliedTags, page: pageNum } }
+          : { query: { page: pageNum } }
+    },
+    applyFilter() {
+      if (this.appliedTags.length !== this.selectedTags.length
+          || this.appliedTags.some(tag => !this.selectedTags.includes(tag))) {
+        this.appliedTags = this.selectedTags
+        this.$router.replace({ query: { tags: this.selectedTags } })
+      }
+    },
+    resetFilter() {
+      this.selectedTags = []
+    },
+  },
+  computed: {
+    appliedTagLabels() {
+      return this.appliedTags.map(appliedTag => {
+        return this.allTags.find(tag => appliedTag === tag.id).label
+      }).join(', ')
     },
   },
   watch: {
     $route: {
       async handler() {
-        await this.fetchProducts()
+        await this.fetchTags()
+
+        const allTagIds = this.allTags.map(tag => tag.id)
+        const validTags = this.tags.filter(id => allTagIds.includes(id))
+        if (this.tags.some(tag => !allTagIds.includes(tag))) {
+          const query = this.page
+              ? { tags: validTags, page: this.page }
+              : { tags: validTags}
+          this.$router.replace({ query })
+        }
+        this.selectedTags = this.appliedTags = validTags
+
+        await this.fetchProducts(this.page ?? 1)
       },
       immediate: true,
     },
