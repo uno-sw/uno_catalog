@@ -160,12 +160,10 @@ export default {
         this.$store.commit('error/setCode', response.status)
       }
 
-      this.$store.commit('message/setMessage', {
-        content: '製品を編集しました',
+      this.$root.$bvToast.toast('製品を編集しました', {
         variant: 'success',
-        dismissible: true,
+        solid: true,
       })
-
       this.$router.push(`/products/${this.id}`)
     },
     async deleteLink(id, title) {
@@ -213,10 +211,9 @@ export default {
           return false
         }
 
-        this.$store.commit('message/setMessage', {
-          content: `製品「${this.values.name}」を削除しました`,
+        this.$root.$bvToast.toast(`製品「${this.values.name}」を削除しました`, {
           variant: 'success',
-          dismissible: true,
+          solid: true,
         })
         this.$router.push('/')
       }

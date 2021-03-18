@@ -119,12 +119,10 @@ export default {
         return false
       }
 
-      this.$store.commit('message/setMessage', {
-        content: '製品を登録しました',
+      this.$root.$bvToast.toast('製品を登録しました', {
         variant: 'success',
-        dismissible: true,
+        solid: true,
       })
-
       this.$router.push(`/products/${response.data.id}`)
     },
     formatErrorMessages(errors) {

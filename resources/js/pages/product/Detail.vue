@@ -9,7 +9,11 @@
           </b-card-sub-title>
           <div v-if="product.tags && product.tags.length > 0" class="mt-2">
             <span v-for="tag in product.tags" :key="tag.label">
-              <b-badge variant="light" class="font-weight-normal">
+              <b-badge
+                variant="light"
+                class="font-weight-normal"
+                :to="`/?tags=${tag.id}`"
+              >
                 {{ tag.label }}
               </b-badge>&nbsp;
             </span>

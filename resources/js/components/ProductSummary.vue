@@ -15,7 +15,11 @@
       <b-card-sub-title v-else>価格情報なし</b-card-sub-title>
       <div v-if="tags && tags.length > 0" class="mt-2">
         <span v-for="tag in tags" :key="tag.label">
-          <b-badge variant="light" class="font-weight-normal" href="#">
+          <b-badge
+            variant="light"
+            class="font-weight-normal"
+            :to="`/?tags=${tag.id}`"
+          >
             {{ tag.label }}
           </b-badge>&nbsp;
         </span>

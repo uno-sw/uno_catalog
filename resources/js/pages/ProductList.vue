@@ -18,7 +18,9 @@
                 <b-form-checkbox :value="tag.id">
                   {{ tag.label }}
                 </b-form-checkbox>
-                <a href="#">削除</a>
+                <a href="#" @click.prevent="deleteTag(tag.id, tag.label)">
+                  削除
+                </a>
               </div>
             </b-form-checkbox-group>
           </b-form-group>
@@ -124,11 +126,46 @@ export default {
       if (this.appliedTags.length !== this.selectedTags.length
           || this.appliedTags.some(tag => !this.selectedTags.includes(tag))) {
         this.appliedTags = this.selectedTags
-        this.$router.replace({ query: { tags: this.selectedTags } })
+        this.$router.replace({ query: { tags: this.appliedTags } })
       }
     },
     resetFilter() {
       this.selectedTags = []
+    },
+    async deleteTag(id, label) {
+      const result = await this.$bvModal.msgBoxConfirm(
+        '全ての製品からこのタグが削除されます。',
+        {
+          title: `タグ「${label}」を削除してもよろしいですか？`,
+          okVariant: 'danger',
+          okTitle: '削除',
+          cancelTitle: 'キャンセル',
+        },
+      )
+
+      if (result) {
+        const response = await axios.delete(`/api/tags/${id}`)
+
+        if (response.status !== OK) {
+          this.$bvToast.toast(`タグ「${label}」の削除に失敗しました`, {
+            variant: 'danger',
+            solid: true,
+          })
+          return false
+        }
+
+        this.$root.$bvToast.toast(`タグ「${label}」を削除しました`, {
+          variant: 'success',
+          solid: true,
+        })
+        if (this.appliedTags.includes(id)) {
+          this.appliedTags = this.appliedTags.filter(tag => tag !== id)
+          this.$router.replace({ query: { tags: this.appliedTags } })
+        } else {
+          await this.fetchTags()
+          await this.fetchProducts()
+        }
+      }
     },
   },
   computed: {

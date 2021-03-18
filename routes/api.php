@@ -34,3 +34,4 @@ Route::post('/products/{product}/links', [LinkController::class, 'create'])->nam
 Route::delete('/links/{link}', [LinkController::class, 'delete'])->name('link.delete');
 
 Route::get('/tags', [TagController::class, 'index'])->name('tag.index');
+Route::delete('/tags/{tag}', [TagController::class, 'delete'])->name('tag.delete');
