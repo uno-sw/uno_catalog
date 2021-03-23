@@ -31,10 +31,10 @@
         </b-form>
       </div>
     </b-sidebar>
+    <b-alert v-if="appliedTags && appliedTags.length > 0" variant="info" show>
+      タグ: {{ appliedTagLabels }}
+    </b-alert>
     <div v-if="products && products.length > 0">
-      <b-alert v-if="appliedTags && appliedTags.length > 0" variant="info" show>
-        タグ: {{ appliedTagLabels }}
-      </b-alert>
       <b-row>
         <b-col
           lg="4"
