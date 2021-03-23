@@ -1,10 +1,10 @@
 <template>
   <div>
     <h1 class="mb-4">製品一覧</h1>
-    <div v-if="products && products.length > 0">
-      <b-button v-b-toggle.filter class="mb-3">絞り込み</b-button>
-      <b-sidebar id="filter" title="絞り込み" shadow>
-        <b-form class="px-3 py-2" @submit.prevent="applyFilter" @reset="resetFilter">
+    <b-button v-b-toggle.filter class="mb-3">絞り込み</b-button>
+    <b-sidebar id="filter" title="絞り込み" shadow>
+      <div class="px-3 py-2">
+        <b-form @submit.prevent="applyFilter" @reset="resetFilter">
           <b-form-group label="タグ" v-slot="{ ariaDescribedBy }">
             <b-form-checkbox-group
               v-model="selectedTags"
@@ -29,7 +29,9 @@
             <b-button type="submit" variant="primary">適用</b-button>
           </div>
         </b-form>
-      </b-sidebar>
+      </div>
+    </b-sidebar>
+    <div v-if="products && products.length > 0">
       <b-alert v-if="appliedTags && appliedTags.length > 0" variant="info" show>
         タグ: {{ appliedTagLabels }}
       </b-alert>
@@ -46,6 +48,9 @@
     <b-alert v-if="products && products.length === 0" show variant="info">
       表示できる製品はありません。
     </b-alert>
+    <div v-if="isLoading" class="d-flex justify-content-center">
+      <b-spinner label="読み込み中" />
+    </div>
     <div class="overflow-auto">
       <b-pagination-nav
         v-if="products && products.length > 0"
@@ -87,19 +92,24 @@ export default {
       appliedTags: [],
       currentPage: 0,
       lastPage: 0,
+      isLoading: true,
     }
   },
   methods: {
     async fetchProducts(page = 1) {
-      const response = await axios.get('/api/products', {
+      const wait = new Promise(resolve => setTimeout(() => resolve(), 1000))
+      const request = await axios.get('/api/products', {
         params: {
           tags: this.appliedTags,
           page: page,
         },
       })
 
+      const [, response] = await Promise.all([wait, request])
+
       if (response.status !== OK) {
         this.$store.commit('error/setCode', response.status)
+        this.$store.commit('error/setMessage', '製品の読み込みに失敗しました')
         return false
       }
 
@@ -112,6 +122,7 @@ export default {
 
       if (response.status !== OK) {
         this.$store.commit('error/setCode', response.status)
+        this.$store.commit('error/setMessage', 'タグの読み込みに失敗しました')
         return false
       }
 
@@ -147,10 +158,8 @@ export default {
         const response = await axios.delete(`/api/tags/${id}`)
 
         if (response.status !== OK) {
-          this.$bvToast.toast(`タグ「${label}」の削除に失敗しました`, {
-            variant: 'danger',
-            solid: true,
-          })
+          this.$store.commit('error/setCode', response.status)
+          this.$store.commit('error/setMessage', `タグ「${label}」の削除に失敗しました`)
           return false
         }
 
@@ -178,6 +187,11 @@ export default {
   watch: {
     $route: {
       async handler() {
+        this.products = null
+        this.currentPage = 0
+        this.lastPage = 0
+        this.isLoading = true
+
         await this.fetchTags()
 
         const allTagIds = this.allTags.map(tag => tag.id)
@@ -191,6 +205,8 @@ export default {
         this.selectedTags = this.appliedTags = validTags
 
         await this.fetchProducts(this.page ?? 1)
+
+        this.isLoading = false
       },
       immediate: true,
     },

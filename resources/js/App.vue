@@ -10,34 +10,38 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
 import Navbar from './components/Navbar.vue'
-import { NOT_FOUND, UNAUTHORIZED, INTERNAL_SERVER_ERROR } from './util'
+import { NOT_FOUND, UNAUTHORIZED } from './util'
 
 export default {
   components: {
     Navbar,
   },
-  computed: {
-    errorCode() {
-      return this.$store.state.error.code
-    },
-  },
+  computed: mapState({
+    errorCode: state => state.error.code,
+    errorMessage: state => state.error.message,
+  }),
   watch: {
     errorCode: {
       handler(val) {
-        if (val === INTERNAL_SERVER_ERROR) {
-          this.$router.push('/500')
-        } else if (val === UNAUTHORIZED) {
+        if (val === UNAUTHORIZED) {
           this.$store.commit('auth/setUser', null)
           this.$router.push('/login')
         } else if (val === NOT_FOUND) {
           this.$router.push('/not-found')
+        } else if (val !== null && this.errorMessage) {
+          this.$root.$bvToast.toast(this.errorMessage, {
+            variant: 'danger',
+            solid: true,
+          })
         }
       },
       immediate: true,
     },
     $route() {
       this.$store.commit('error/setCode', null)
+      this.$store.commit('error/setMessage', '')
     },
   },
 }

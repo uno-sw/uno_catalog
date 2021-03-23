@@ -79,7 +79,10 @@
       </b-form-group>
 
       <div class="text-right">
-        <b-button type="submit" variant="primary">登録</b-button>
+        <b-button :disabled="isProcessing" type="submit" variant="primary">
+          <b-spinner label="処理中" small type="grow" v-if="isProcessing" />
+          登録
+        </b-button>
       </div>
     </b-form>
   </FormSection>
@@ -103,11 +106,17 @@ export default {
         image_url: '',
       },
       errors: {},
+      isProcessing: false,
     }
   },
   methods: {
     async register() {
-      const response = await axios.post('/api/products', this.values)
+      const wait = new Promise(resolve => setTimeout(() => resolve(), 1000))
+      const request = axios.post('/api/products', this.values)
+
+      this.isProcessing = true
+      const [, response] = await Promise.all([wait, request])
+      this.isProcessing = false
 
       if (response.status === UNPROCESSABLE_ENTITY) {
         this.errors = this.formatErrorMessages(response.data.errors)
@@ -116,6 +125,7 @@ export default {
 
       if (response.status !== CREATED) {
         this.$store.commit('error/setCode', response.status)
+        this.$store.commit('error/setMessage', '製品の登録に失敗しました')
         return false
       }
 

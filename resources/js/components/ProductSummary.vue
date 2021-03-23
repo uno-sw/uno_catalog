@@ -1,6 +1,7 @@
 <template>
   <b-card class="my-2" no-body>
     <b-card-img-lazy
+      v-if="image_url"
       :src="image_url"
       :alt="`${name}の画像`"
       blank-color="#bbb"

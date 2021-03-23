@@ -7,6 +7,7 @@ const state = {
   apiStatus: null,
   loginErrorMessages: null,
   forwardingRoute: null,
+  isProcessing: false,
 }
 
 const getters = {
@@ -27,13 +28,20 @@ const mutations = {
   setForwardingRoute(state, route) {
     state.forwardingRoute = route
   },
+  setIsProcessing(state, isProcessing) {
+    state.isProcessing = isProcessing
+  }
 }
 
 const actions = {
   async login(context, data) {
     context.commit('setApiStatus', null)
+    context.commit('setIsProcessing', true)
     await axios.get('/sanctum/csrf-cookie')
-    const response = await axios.post('/api/login', data)
+    const wait = new Promise(resolve => setTimeout(() => resolve(), 1000))
+    const login = axios.post('/api/login', data)
+    const [, response] = await Promise.all([wait, login])
+    context.commit('setIsProcessing', false)
 
     if (response.status === OK) {
       context.commit('setApiStatus', true)
@@ -46,6 +54,11 @@ const actions = {
       context.commit('setLoginErrorMessages', response.data.errors)
     } else {
       context.commit('error/setCode', response.status, { root: true })
+      context.commit(
+        'error/setMessage',
+        'ログイン中にエラーが発生しました',
+        { root: true },
+      )
     }
   },
   async logout(context) {
@@ -60,6 +73,11 @@ const actions = {
 
     context.commit('setApiStatus', false)
     context.commit('error/setCode', response.status, { root: true })
+    context.commit(
+      'error/setMessage',
+      'ログアウト中にエラーが発生しました',
+      { root: true },
+    )
   },
   async currentUser(context) {
     context.commit('setApiStatus', null)
@@ -74,6 +92,11 @@ const actions = {
 
     context.commit('setApiStatus', false)
     context.commit('error/setCode', response.status, { root: true })
+    context.commit(
+      'error/setMessage',
+      'ユーザーの取得に失敗しました',
+      { root: true },
+    )
   },
 }
 

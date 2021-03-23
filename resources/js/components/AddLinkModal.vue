@@ -33,8 +33,11 @@
       />
     </b-form-group>
     <template #modal-footer="{ hide, cancel }">
-      <b-button @click="cancel">キャンセル</b-button>
-      <b-button @click="add(hide)" variant="primary">追加</b-button>
+      <b-button :disabled="isProcessing" @click="cancel">キャンセル</b-button>
+      <b-button :disabled="isProcessing" variant="primary" @click="add(hide)">
+        <b-spinner label="処理中" small type="grow" v-if="isProcessing" />
+        追加
+      </b-button>
     </template>
   </b-modal>
 </template>
@@ -56,25 +59,32 @@ export default {
         url: '',
       },
       errors: {},
+      isProcessing: false,
     }
   },
   methods: {
     add(hide) {
-      axios.post(`/api/products/${this.productId}/links`, this.values)
-        .then(response => {
-          if (response.status === UNPROCESSABLE_ENTITY) {
-            this.errors = this.formatErrors(response.data.errors)
-            return false
-          }
+      const wait = new Promise(resolve => setTimeout(() => resolve(), 1000))
+      const request = axios.post(`/api/products/${this.productId}/links`, this.values)
 
-          if (response.status !== CREATED) {
-            this.$store.commit('error/setCode', response.status)
-            return false
-          }
+      this.isProcessing = true
+      Promise.all([wait, request]).then(values => {
+        this.isProcessing = false
+        const response = values[1]
+        if (response.status === UNPROCESSABLE_ENTITY) {
+          this.errors = this.formatErrors(response.data.errors)
+          return false
+        }
 
-          this.$emit('addLink', response.data.id)
-          hide()
-        })
+        if (response.status !== CREATED) {
+          this.$store.commit('error/setCode', response.status)
+          this.$store.commit('error/setMessage', 'リンクの追加に失敗しました')
+          return false
+        }
+
+        this.$emit('addLink', {id: response.data.id, ...this.values})
+        hide()
+      })
     },
     reset() {
       this.values = { title: '', url: '' }

@@ -36,7 +36,10 @@
                   継続してログインする
                 </b-form-checkbox>
               </b-form-group>
-              <b-button type="submit" variant="primary">ログイン</b-button>
+              <b-button :disabled="isProcessing" type="submit" variant="primary">
+                <b-spinner label="処理中" small type="grow" v-if="isProcessing" />
+                ログイン
+              </b-button>
             </b-col>
           </b-form-row>
         </b-form>
@@ -63,6 +66,7 @@ export default {
       apiStatus: state => state.auth.apiStatus,
       errors: state => state.auth.loginErrorMessages,
       forwardingRoute: state => state.auth.forwardingRoute,
+      isProcessing: state => state.auth.isProcessing,
     }),
   },
   methods: {
@@ -76,6 +80,11 @@ export default {
         } else {
           this.$router.push('/')
         }
+
+        this.$root.$bvToast.toast('ログインに成功しました', {
+          variant: 'success',
+          solid: true,
+        })
       }
     },
     clearError() {

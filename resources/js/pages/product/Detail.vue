@@ -1,6 +1,9 @@
 <template>
-  <div v-if="product">
-    <b-card>
+  <div>
+    <div v-if="isLoading" class="d-flex justify-content-center">
+      <b-spinner label="読み込み中" />
+    </div>
+    <b-card v-if="product">
       <b-row no-gutters>
         <b-col lg="6">
           <b-card-title>{{ product.name }}</b-card-title>
@@ -71,14 +74,21 @@ export default {
   data() {
     return {
       product: null,
+      isLoading: true,
     }
   },
   methods: {
     async fetchProduct() {
-      const response = await axios.get(`/api/products/${this.id}`)
+      const wait = new Promise(resolve => setTimeout(() => resolve(), 1000))
+      const request = axios.get(`/api/products/${this.id}`)
+
+      this.isLoading = true
+      const [, response] = await Promise.all([wait, request])
+      this.isLoading = false
 
       if (response.status !== OK) {
         this.$store.commit('error/setCode', response.status)
+        this.$store.commit('error/setMessage', '製品の読み込みに失敗しました')
         return false
       }
 
