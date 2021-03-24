@@ -102,16 +102,16 @@ export default {
       currentPage: 0,
       lastPage: 0,
       isLoading: true,
-      selectedSort: { sort: 'created_at', order: 'asc' },
+      selectedSort: { sort: 'created_at', order: 'desc' },
       sortOptions: [
-        { value: { sort: 'created_at', order: 'asc' }, text: '作成日が新しい順' },
-        { value: { sort: 'created_at', order: 'desc' }, text: '作成日が古い順' },
+        { value: { sort: 'created_at', order: 'desc' }, text: '作成日が新しい順' },
+        { value: { sort: 'created_at', order: 'asc' }, text: '作成日が古い順' },
         { value: { sort: 'updated_at', order: 'desc' }, text: '更新日が新しい順' },
         { value: { sort: 'updated_at', order: 'asc' }, text: '更新日が古い順' },
         { value: { sort: 'price', order: 'asc' }, text: '価格が安い順' },
         { value: { sort: 'price', order: 'desc' }, text: '価格が高い順' },
-        { value: { sort: 'name', order: 'asc' }, text: 'タイトル昇順' },
-        { value: { sort: 'name', order: 'desc' }, text: 'タイトル降順' },
+        { value: { sort: 'name', order: 'asc' }, text: '製品名昇順' },
+        { value: { sort: 'name', order: 'desc' }, text: '製品名降順' },
       ],
     }
   },
@@ -151,9 +151,17 @@ export default {
       this.allTags = response.data.data
     },
     linkGen(pageNum) {
-      return this.appliedTags.length > 0
-          ? { query: { tags: this.appliedTags, page: pageNum } }
-          : { query: { page: pageNum } }
+      const query = { page: pageNum }
+      if (this.appliedTags.length > 0) {
+        query['tags'] = this.appliedTags
+      }
+      if (this.sort) {
+        query['sort'] = this.sort
+      }
+      if (this.order) {
+        query['order'] = this.order
+      }
+      return { query }
     },
     applyFilter() {
       if (this.appliedTags.length !== this.selectedTags.length

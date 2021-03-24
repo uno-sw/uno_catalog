@@ -61,7 +61,7 @@ class ProductListApiTest extends TestCase
         }
 
         $products = $user->products()
-            ->oldest()
+            ->latest()
             ->orderBy('id', 'asc')
             ->with(['tags' => function ($query) {
                 $query->withPivot(['id'])->orderBy('pivot_id');
@@ -239,12 +239,12 @@ class ProductListApiTest extends TestCase
     /**
      * @test
      */
-    public function should_return_products_sorted_by_title_asc()
+    public function should_return_products_sorted_by_name_asc()
     {
         $user = User::factory()->hasProducts(5)->create();
 
         $products = $user->products()
-            ->orderBy('title', 'asc')
+            ->orderBy('name', 'asc')
             ->orderBy('id', 'asc')
             ->with(['tags' => function ($query) {
                 $query->withPivot(['id'])->orderBy('pivot_id');
@@ -253,7 +253,7 @@ class ProductListApiTest extends TestCase
         $expected_data = $this->productsToJSON($products)->all();
         $response = $this->actingAs($user)
             ->getJson(route('product.index',
-                ['sort' => 'title', 'order' => 'asc']));
+                ['sort' => 'name', 'order' => 'asc']));
         $response->assertOk()
             ->assertJsonCount(5, 'data')
             ->assertJson(['data' => $expected_data]);
@@ -262,12 +262,12 @@ class ProductListApiTest extends TestCase
     /**
      * @test
      */
-    public function should_return_products_sorted_by_title_desc()
+    public function should_return_products_sorted_by_name_desc()
     {
         $user = User::factory()->hasProducts(5)->create();
 
         $products = $user->products()
-            ->orderBy('title', 'desc')
+            ->orderBy('name', 'desc')
             ->orderBy('id', 'asc')
             ->with(['tags' => function ($query) {
                 $query->withPivot(['id'])->orderBy('pivot_id');
@@ -276,7 +276,7 @@ class ProductListApiTest extends TestCase
         $expected_data = $this->productsToJSON($products)->all();
         $response = $this->actingAs($user)
             ->getJson(route('product.index',
-                ['sort' => 'title', 'order' => 'desc']));
+                ['sort' => 'name', 'order' => 'desc']));
         $response->assertOk()
             ->assertJsonCount(5, 'data')
             ->assertJson(['data' => $expected_data]);
@@ -292,7 +292,7 @@ class ProductListApiTest extends TestCase
             ->create();
 
         $products = $user->products()
-            ->oldest()
+            ->latest()
             ->orderBy('id', 'asc')
             ->with(['tags' => function ($query) {
                 $query->withPivot(['id'])->orderBy('pivot_id');

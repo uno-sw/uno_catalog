@@ -26,7 +26,7 @@ class ProductController extends Controller
             $sort = 'created_at';
         }
         if (!in_array($order, ['asc', 'desc'])) {
-            $order = 'asc';
+            $order = 'desc';
         }
 
         $tags = $request->tags;
