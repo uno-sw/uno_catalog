@@ -35,6 +35,8 @@ const routes = [
       return {
         page: /^[1-9][0-9]*$/.test(page) ? Number(page) : null,
         tags,
+        sort: route.query.sort,
+        order: route.query.order,
       }
     },
   },

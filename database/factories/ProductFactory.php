@@ -26,6 +26,8 @@ class ProductFactory extends Factory
             'name' => $this->faker->name,
             'price' => $this->faker->numberBetween(0, 10000),
             'note' => $this->faker->sentence,
+            'created_at' => $this->faker->dateTime(),
+            'updated_at' => $this->faker->dateTime(),
         ];
     }
 }

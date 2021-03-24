@@ -20,6 +20,15 @@ class ProductController extends Controller
     public function index(Request $request) {
         $perPage = 12;
 
+        $sort = $request->sort;
+        $order = $request->order;
+        if (!in_array($sort, ['name', 'price', 'created_at', 'updated_at'])) {
+            $sort = 'created_at';
+        }
+        if (!in_array($order, ['asc', 'desc'])) {
+            $order = 'asc';
+        }
+
         $tags = $request->tags;
 
         if (is_array($tags)) {
@@ -30,9 +39,8 @@ class ProductController extends Controller
                 ->whereIn('product_tag.tag_id', $tags)
                 ->groupBy('products.id')
                 ->havingRaw('count(DISTINCT product_tag.tag_id) = ' . count($tags))
-                ->orderBy('products.price', 'asc')
+                ->orderBy('products.' . $sort, $order)
                 ->orderBy('products.id', 'asc')
-                ->limit(50)
                 ->with(['tags' => function ($query) {
                     $query->withPivot(['id'])->orderBy('pivot_id');
                 }])
@@ -43,7 +51,7 @@ class ProductController extends Controller
 
         $products = Auth::user()
             ->products()
-            ->orderBy('price', 'asc')
+            ->orderBy($sort, $order)
             ->orderBy('id', 'asc')
             ->with(['tags' => function ($query) {
                 $query->withPivot(['id'])->orderBy('pivot_id');

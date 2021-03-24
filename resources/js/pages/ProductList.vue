@@ -2,6 +2,7 @@
   <div>
     <h1 class="mb-4">製品一覧</h1>
     <b-button v-b-toggle.filter class="mb-3">絞り込み</b-button>
+    <b-form-select class="mb-3" :options="sortOptions" v-model="selectedSort" />
     <b-sidebar id="filter" title="絞り込み" shadow>
       <div class="px-3 py-2">
         <b-form @submit.prevent="applyFilter" @reset="resetFilter">
@@ -49,7 +50,7 @@
       表示できる製品はありません。
     </b-alert>
     <div v-if="isLoading" class="d-flex justify-content-center">
-      <b-spinner label="読み込み中" />
+      <b-spinner class="m-5" label="読み込み中" />
     </div>
     <div class="overflow-auto">
       <b-pagination-nav
@@ -83,6 +84,14 @@ export default {
       required: false,
       default: () => [],
     },
+    sort: {
+      type: String,
+      required: false,
+    },
+    order: {
+      type: String,
+      required: false,
+    },
   },
   data() {
     return {
@@ -93,6 +102,17 @@ export default {
       currentPage: 0,
       lastPage: 0,
       isLoading: true,
+      selectedSort: { sort: 'created_at', order: 'asc' },
+      sortOptions: [
+        { value: { sort: 'created_at', order: 'asc' }, text: '作成日が新しい順' },
+        { value: { sort: 'created_at', order: 'desc' }, text: '作成日が古い順' },
+        { value: { sort: 'updated_at', order: 'desc' }, text: '更新日が新しい順' },
+        { value: { sort: 'updated_at', order: 'asc' }, text: '更新日が古い順' },
+        { value: { sort: 'price', order: 'asc' }, text: '価格が安い順' },
+        { value: { sort: 'price', order: 'desc' }, text: '価格が高い順' },
+        { value: { sort: 'name', order: 'asc' }, text: 'タイトル昇順' },
+        { value: { sort: 'name', order: 'desc' }, text: 'タイトル降順' },
+      ],
     }
   },
   methods: {
@@ -102,6 +122,8 @@ export default {
         params: {
           tags: this.appliedTags,
           page: page,
+          sort: this.selectedSort.sort,
+          order: this.selectedSort.order,
         },
       })
 
@@ -137,7 +159,14 @@ export default {
       if (this.appliedTags.length !== this.selectedTags.length
           || this.appliedTags.some(tag => !this.selectedTags.includes(tag))) {
         this.appliedTags = this.selectedTags
-        this.$router.replace({ query: { tags: this.appliedTags } })
+        const query = { tags: this.appliedTags }
+        if (this.sort) {
+          query['sort'] = this.sort
+        }
+        if (this.order) {
+          query['order'] = this.order
+        }
+        this.$router.replace({ query })
       }
     },
     resetFilter() {
@@ -169,7 +198,14 @@ export default {
         })
         if (this.appliedTags.includes(id)) {
           this.appliedTags = this.appliedTags.filter(tag => tag !== id)
-          this.$router.replace({ query: { tags: this.appliedTags } })
+          const query = { tags: this.appliedTags }
+          if (this.sort) {
+            query['sort'] = this.sort
+          }
+          if (this.order) {
+            query['order'] = this.order
+          }
+          this.$router.replace({ query })
         } else {
           await this.fetchTags()
           await this.fetchProducts()
@@ -187,6 +223,13 @@ export default {
   watch: {
     $route: {
       async handler() {
+        if (this.sortOptions.some(option => option.value.sort === this.sort)) {
+          this.selectedSort.sort = this.sort
+        }
+        if (this.sortOptions.some(option => option.value.order === this.order)) {
+          this.selectedSort.order = this.order
+        }
+
         this.products = null
         this.currentPage = 0
         this.lastPage = 0
@@ -197,9 +240,16 @@ export default {
         const allTagIds = this.allTags.map(tag => tag.id)
         const validTags = this.tags.filter(id => allTagIds.includes(id))
         if (this.tags.some(tag => !allTagIds.includes(tag))) {
-          const query = this.page
-              ? { tags: validTags, page: this.page }
-              : { tags: validTags}
+          const query = { tags: validTags }
+          if (this.page) {
+            query['page'] = this.page
+          }
+          if (this.sort) {
+            query['sort'] = this.sort
+          }
+          if (this.order) {
+            query['order'] = this.order
+          }
           this.$router.replace({ query })
         }
         this.selectedTags = this.appliedTags = validTags
@@ -209,6 +259,16 @@ export default {
         this.isLoading = false
       },
       immediate: true,
+    },
+    async selectedSort() {
+      const query = { ...this.selectedSort }
+      if (this.page) {
+        query['page'] = this.page
+      }
+      if (this.tags && this.tags.length > 0) {
+        query['tags'] = this.tags
+      }
+      this.$router.replace({ query })
     },
   },
 }
