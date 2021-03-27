@@ -9,22 +9,26 @@
   </div>
 </template>
 
-<script>
-import { mapState } from 'vuex'
+<script lang="ts">
+import Vue from 'vue'
 import Navbar from './components/Navbar.vue'
 import { NOT_FOUND, UNAUTHORIZED } from './util'
 
-export default {
+export default Vue.extend({
   components: {
     Navbar,
   },
-  computed: mapState({
-    errorCode: state => state.error.code,
-    errorMessage: state => state.error.message,
-  }),
+  computed: {
+    errorCode(): number | null {
+      return this.$store.getters['error/code']
+    },
+    errorMessage(): string {
+      return this.$store.getters['error/message']
+    },
+  },
   watch: {
     errorCode: {
-      handler(val) {
+      handler(val: number | null) {
         if (val === UNAUTHORIZED) {
           this.$store.commit('auth/setUser', null)
           this.$router.push('/login')
@@ -44,5 +48,5 @@ export default {
       this.$store.commit('error/setMessage', '')
     },
   },
-}
+})
 </script>

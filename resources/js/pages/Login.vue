@@ -48,10 +48,10 @@
   </b-row>
 </template>
 
-<script>
-import { mapState } from 'vuex'
+<script lang="ts">
+import Vue from 'vue'
 
-export default {
+export default Vue.extend({
   data() {
     return {
       form: {
@@ -62,12 +62,18 @@ export default {
     }
   },
   computed: {
-    ...mapState({
-      apiStatus: state => state.auth.apiStatus,
-      errors: state => state.auth.loginErrorMessages,
-      forwardingRoute: state => state.auth.forwardingRoute,
-      isProcessing: state => state.auth.isProcessing,
-    }),
+    apiStatus() {
+      return this.$store.getters['auth/apiStatus']
+    },
+    errors() {
+      return this.$store.getters['auth/loginErrorMessages']
+    },
+    forwardingRoute() {
+      return this.$store.getters['auth/forwardingRoute']
+    },
+    isProcessing() {
+      return this.$store.getters['auth/isProcessing']
+    },
   },
   methods: {
     async login() {
@@ -94,5 +100,5 @@ export default {
   created() {
     this.clearError()
   },
-}
+})
 </script>

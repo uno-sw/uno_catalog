@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import VueRouter from 'vue-router'
+import VueRouter, { RouteConfig } from 'vue-router'
 
 import ProductList from './pages/ProductList.vue'
 import Login from './pages/Login.vue'
@@ -13,27 +13,35 @@ import store from './store'
 
 Vue.use(VueRouter)
 
-const routes = [
+const routes: Array<RouteConfig> = [
   {
     path: '/',
     component: ProductList,
     meta: { auth: true },
     props: route => {
       const numberRegex = /^[1-9][0-9]*$/
-      const page = route.query.page
-      let tags = route.query.tags
-      if (Array.isArray(tags)) {
-        tags = tags.reduce((prev, value) => {
-          if (numberRegex.test(value)) {
+
+      const pageQuery = route.query.page
+      const page = typeof pageQuery === 'string' && numberRegex.test(pageQuery)
+          ? Number(pageQuery)
+          : null
+
+      const tagsQuery = route.query.tags
+      let tags: number[]
+      if (Array.isArray(tagsQuery)) {
+        tags = tagsQuery.reduce<number[]>((prev, value) => {
+          if (value && numberRegex.test(value)) {
             prev.push(Number(value))
           }
           return prev
         }, [])
       } else {
-        tags = numberRegex.test(tags) ? [Number(tags)] : []
+        tags = tagsQuery && numberRegex.test(tagsQuery)
+            ? [Number(tagsQuery)]
+            : []
       }
       return {
-        page: /^[1-9][0-9]*$/.test(page) ? Number(page) : null,
+        page,
         tags,
         sort: route.query.sort,
         order: route.query.order,

@@ -20,18 +20,20 @@
   </b-navbar>
 </template>
 
-<script>
-import { mapState, mapGetters } from 'vuex'
+<script lang="ts">
+import Vue from 'vue'
 
-export default {
+export default Vue.extend({
   computed: {
-    ...mapState({
-      apiStatus: state => state.auth.apiStatus,
-    }),
-    ...mapGetters({
-      isLoggedIn: 'auth/check',
-      username: 'auth/username',
-    }),
+    isLoggedIn() {
+      return this.$store.getters['auth/check']
+    },
+    username() {
+      return this.$store.getters['auth/username']
+    },
+    apiStatus() {
+      return this.$store.getters['auth/apiStatus']
+    },
   },
   methods: {
     async logout() {
@@ -42,5 +44,5 @@ export default {
       }
     },
   },
-}
+})
 </script>

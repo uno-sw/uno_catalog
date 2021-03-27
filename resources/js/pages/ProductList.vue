@@ -260,6 +260,7 @@ export default {
           }
           this.$router.replace({ query })
         }
+        console.log(this.tags)
         this.selectedTags = this.appliedTags = validTags
 
         await this.fetchProducts(this.page ?? 1)

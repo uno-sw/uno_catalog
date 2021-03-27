@@ -1,8 +1,9 @@
 import axios from "axios"
-
+import { DefineActions, DefineGetters, DefineMutations } from 'vuex-type-helper'
+import { AuthActions, AuthGetters, AuthMutations, AuthState } from "../types/store/auth"
 import { OK, UNPROCESSABLE_ENTITY } from '../util'
 
-const state = {
+const state: AuthState = {
   user: null,
   apiStatus: null,
   loginErrorMessages: null,
@@ -10,12 +11,16 @@ const state = {
   isProcessing: false,
 }
 
-const getters = {
+const getters: DefineGetters<AuthGetters, AuthState> = {
   check: state => !!state.user,
   username: state => state.user ? state.user.name : '',
+  apiStatus: state => state.apiStatus,
+  loginErrorMessages: state => state.loginErrorMessages,
+  forwardingRoute: state => state.forwardingRoute,
+  isProcessing: state => state.isProcessing,
 }
 
-const mutations = {
+const mutations: DefineMutations<AuthMutations, AuthState> = {
   setUser(state, user) {
     state.user = user
   },
@@ -33,12 +38,12 @@ const mutations = {
   }
 }
 
-const actions = {
+const actions: DefineActions<AuthActions, AuthState, AuthMutations> = {
   async login(context, data) {
     context.commit('setApiStatus', null)
     context.commit('setIsProcessing', true)
     await axios.get('/sanctum/csrf-cookie')
-    const wait = new Promise(resolve => setTimeout(() => resolve(), 1000))
+    const wait = new Promise<void>(resolve => setTimeout(() => resolve(), 1000))
     const login = axios.post('/api/login', data)
     const [, response] = await Promise.all([wait, login])
     context.commit('setIsProcessing', false)
@@ -46,7 +51,7 @@ const actions = {
     if (response.status === OK) {
       context.commit('setApiStatus', true)
       context.commit('setUser', response.data)
-      return false
+      return
     }
 
     context.commit('setApiStatus', false)
@@ -68,7 +73,7 @@ const actions = {
     if (response.status === OK) {
       context.commit('setApiStatus', true)
       context.commit('setUser', null)
-      return false
+      return
     }
 
     context.commit('setApiStatus', false)
@@ -87,7 +92,7 @@ const actions = {
     if (response.status === OK) {
       context.commit('setApiStatus', true)
       context.commit('setUser', user)
-      return false
+      return
     }
 
     context.commit('setApiStatus', false)
