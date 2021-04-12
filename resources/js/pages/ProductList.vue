@@ -46,9 +46,9 @@
         </b-col>
       </b-row>
     </div>
-    <b-alert v-if="products && products.length === 0" show variant="info">
+    <p v-if="products && products.length === 0">
       表示できる製品はありません。
-    </b-alert>
+    </p>
     <div v-if="isLoading" class="d-flex justify-content-center">
       <b-spinner class="m-5" label="読み込み中" />
     </div>

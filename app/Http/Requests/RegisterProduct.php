@@ -26,11 +26,6 @@ class RegisterProduct extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:100'],
-            'price' => ['integer', 'nullable'],
-            'note' => ['string', 'nullable'],
-            'tags' => ['array', 'nullable', 'max:10'],
-            'tags.*' => ['string', 'max:20'],
-            'image_url' => ['url', 'nullable', 'max:255', new ImageUrl],
         ];
     }
 
@@ -42,11 +37,6 @@ class RegisterProduct extends FormRequest
         return [
             'name.required' => '製品名が入力されていません',
             'name.max' => '製品名は100文字以下で入力してください',
-            'price.integer' => '価格は整数で入力してください',
-            'tags.max' => '登録できるタグは10個までです',
-            'tags.*.max' => 'それぞれのタグは20文字以下で入力してください',
-            'image_url.url' => '画像URLが無効なURL形式です',
-            'image_url.max' => '画像URLは255文字以下で入力してください',
         ];
     }
 }

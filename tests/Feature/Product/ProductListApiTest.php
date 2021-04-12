@@ -28,6 +28,13 @@ class ProductListApiTest extends TestCase
                     ];
                 })->all(),
                 'image_url' => $product->image_url,
+                'links' => $product->links->map(function ($link) {
+                    return [
+                        'title' => $link->title,
+                        'url' => $link->url,
+                    ];
+                })->all(),
+                'note' => $product->note,
             ];
         });
     }
@@ -57,15 +64,14 @@ class ProductListApiTest extends TestCase
                 ->count(25)
                 ->for($user)
                 ->hasAttached($tags)
+                ->hasLinks(3)
                 ->create();
         }
 
         $products = $user->products()
             ->latest()
             ->orderBy('id', 'asc')
-            ->with(['tags' => function ($query) {
-                $query->withPivot(['id'])->orderBy('pivot_id');
-            }])
+            ->with(['tags', 'links'])
             ->get();
         $expected_data = $this->productsToJSON($products);
 
@@ -108,9 +114,7 @@ class ProductListApiTest extends TestCase
         $products = $user->products()
             ->oldest()
             ->orderBy('id', 'asc')
-            ->with(['tags' => function ($query) {
-                $query->withPivot(['id'])->orderBy('pivot_id');
-            }])
+            ->with(['tags', 'links'])
             ->get();
         $expected_data = $this->productsToJSON($products)->all();
         $response = $this->actingAs($user)
@@ -131,9 +135,7 @@ class ProductListApiTest extends TestCase
         $products = $user->products()
             ->latest()
             ->orderBy('id', 'asc')
-            ->with(['tags' => function ($query) {
-                $query->withPivot(['id'])->orderBy('pivot_id');
-            }])
+            ->with(['tags', 'links'])
             ->get();
         $expected_data = $this->productsToJSON($products)->all();
         $response = $this->actingAs($user)
@@ -154,9 +156,7 @@ class ProductListApiTest extends TestCase
         $products = $user->products()
             ->oldest('updated_at')
             ->orderBy('id', 'asc')
-            ->with(['tags' => function ($query) {
-                $query->withPivot(['id'])->orderBy('pivot_id');
-            }])
+            ->with(['tags', 'links'])
             ->get();
         $expected_data = $this->productsToJSON($products)->all();
         $response = $this->actingAs($user)
@@ -177,9 +177,7 @@ class ProductListApiTest extends TestCase
         $products = $user->products()
             ->latest('updated_at')
             ->orderBy('id', 'asc')
-            ->with(['tags' => function ($query) {
-                $query->withPivot(['id'])->orderBy('pivot_id');
-            }])
+            ->with(['tags', 'links'])
             ->get();
         $expected_data = $this->productsToJSON($products)->all();
         $response = $this->actingAs($user)
@@ -200,9 +198,7 @@ class ProductListApiTest extends TestCase
         $products = $user->products()
             ->orderBy('price', 'asc')
             ->orderBy('id', 'asc')
-            ->with(['tags' => function ($query) {
-                $query->withPivot(['id'])->orderBy('pivot_id');
-            }])
+            ->with(['tags', 'links'])
             ->get();
         $expected_data = $this->productsToJSON($products)->all();
         $response = $this->actingAs($user)
@@ -223,9 +219,7 @@ class ProductListApiTest extends TestCase
         $products = $user->products()
             ->orderBy('price', 'desc')
             ->orderBy('id', 'asc')
-            ->with(['tags' => function ($query) {
-                $query->withPivot(['id'])->orderBy('pivot_id');
-            }])
+            ->with(['tags', 'links'])
             ->get();
         $expected_data = $this->productsToJSON($products)->all();
         $response = $this->actingAs($user)
@@ -246,9 +240,7 @@ class ProductListApiTest extends TestCase
         $products = $user->products()
             ->orderBy('name', 'asc')
             ->orderBy('id', 'asc')
-            ->with(['tags' => function ($query) {
-                $query->withPivot(['id'])->orderBy('pivot_id');
-            }])
+            ->with(['tags', 'links'])
             ->get();
         $expected_data = $this->productsToJSON($products)->all();
         $response = $this->actingAs($user)
@@ -269,9 +261,7 @@ class ProductListApiTest extends TestCase
         $products = $user->products()
             ->orderBy('name', 'desc')
             ->orderBy('id', 'asc')
-            ->with(['tags' => function ($query) {
-                $query->withPivot(['id'])->orderBy('pivot_id');
-            }])
+            ->with(['tags', 'links'])
             ->get();
         $expected_data = $this->productsToJSON($products)->all();
         $response = $this->actingAs($user)
@@ -294,9 +284,7 @@ class ProductListApiTest extends TestCase
         $products = $user->products()
             ->latest()
             ->orderBy('id', 'asc')
-            ->with(['tags' => function ($query) {
-                $query->withPivot(['id'])->orderBy('pivot_id');
-            }])
+            ->with(['tags', 'links'])
             ->limit(12)
             ->get();
         $expected_data = $this->productsToJSON($products)->all();

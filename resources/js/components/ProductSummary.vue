@@ -25,11 +25,19 @@
           </b-badge>&nbsp;
         </span>
       </div>
-      <b-button
-        :to="`/products/${id}`"
-        variant="primary"
-        class="mt-3"
-      >詳細</b-button>
+      <div class="mt-3">
+        <b-button :to="`/products/${id}/edit`" variant="primary">編集</b-button>
+        <b-dropdown v-if="links && links.length > 0" text="リンク">
+          <b-dropdown-item v-for="link in links" :key="link.title" :href="link.url">
+            {{ link.title }}
+          </b-dropdown-item>
+        </b-dropdown>
+        <b-dropdown v-if="note" text="メモ">
+          <b-dropdown-text>
+            <pre class="mb-0">{{ note }}</pre>
+          </b-dropdown-text>
+        </b-dropdown>
+      </div>
     </b-card-body>
   </b-card>
 </template>
@@ -54,6 +62,16 @@ export default {
       required: false,
     },
     image_url: {
+      type: String,
+      required: false,
+      default: '',
+    },
+    links: {
+      type: Array,
+      required: false,
+      default: () => [],
+    },
+    note: {
       type: String,
       required: false,
       default: '',

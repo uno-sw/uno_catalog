@@ -3,9 +3,7 @@ import VueRouter, { RouteConfig } from 'vue-router'
 
 import ProductList from './pages/ProductList.vue'
 import Login from './pages/Login.vue'
-import ProductDetail from './pages/product/Detail.vue'
 import ProductEdit from './pages/product/Edit.vue'
-import RegisterProduct from './pages/product/Register.vue'
 import NotFound from './pages/errors/NotFound.vue'
 import SystemError from './pages/errors/System.vue'
 
@@ -54,16 +52,6 @@ const routes: Array<RouteConfig> = [
     meta: { guest: true },
   },
   {
-    path: '/products/register',
-    component: RegisterProduct,
-    meta: { auth: true },
-  },
-  {
-    path: '/products/:id',
-    component: ProductDetail,
-    props: true,
-  },
-  {
     path: '/products/:id/edit',
     component: ProductEdit,
     props: true,
@@ -94,17 +82,15 @@ router.beforeEach((to, from, next) => {
       store.commit('auth/setForwardingRoute', to)
       next('/login')
     }
-  }
-
-  if (to.matched.some(record => record.meta.guest)) {
+  } else if (to.matched.some(record => record.meta.guest)) {
     if (store.getters['auth/check']) {
       next('/')
     } else {
       next()
     }
+  } else {
+    next()
   }
-
-  next()
 })
 
 export default router

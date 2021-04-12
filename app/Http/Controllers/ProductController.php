@@ -41,9 +41,7 @@ class ProductController extends Controller
                 ->havingRaw('count(DISTINCT product_tag.tag_id) = ' . count($tags))
                 ->orderBy('products.' . $sort, $order)
                 ->orderBy('products.id', 'asc')
-                ->with(['tags' => function ($query) {
-                    $query->withPivot(['id'])->orderBy('pivot_id');
-                }])
+                ->with(['tags', 'links'])
                 ->paginate($perPage);
 
             return ProductIndexResource::collection($products);
@@ -53,9 +51,7 @@ class ProductController extends Controller
             ->products()
             ->orderBy($sort, $order)
             ->orderBy('id', 'asc')
-            ->with(['tags' => function ($query) {
-                $query->withPivot(['id'])->orderBy('pivot_id');
-            }])
+            ->with(['tags', 'links'])
             ->paginate($perPage);
 
         return ProductIndexResource::collection($products);
@@ -63,17 +59,7 @@ class ProductController extends Controller
 
     public function register(RegisterProduct $request)
     {
-        $product = new Product();
-        $product->name = $request->name;
-        $product->price = $request->price;
-        $product->note = $request->note;
-        $product->image_url = $request->image_url;
-        Auth::user()->products()->save($product);
-
-        if ($request->tags) {
-            $product->tags = $request->tags;
-        }
-
+        $product = Auth::user()->products()->create($request->validated());
         return response()->json(['id' => $product->id], 201);
     }
 

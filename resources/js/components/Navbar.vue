@@ -7,7 +7,10 @@
 
       <b-collapse id="nav-collapse" is-nav>
         <b-navbar-nav v-if="isLoggedIn">
-          <b-nav-item to="/products/register">製品を登録</b-nav-item>
+          <b-nav-item href="#" @click.prevent="showRegisterProductModal">
+            製品を登録
+          </b-nav-item>
+          <RegisterProductModal @register="onRegisterProduct" />
         </b-navbar-nav>
         <b-navbar-nav class="ml-auto">
           <b-nav-item-dropdown v-if="isLoggedIn" :text="username" right>
@@ -20,10 +23,13 @@
   </b-navbar>
 </template>
 
-<script lang="ts">
-import Vue from 'vue'
+<script>
+import RegisterProductModal from './RegisterProductModal.vue'
 
-export default Vue.extend({
+export default {
+  components: {
+    RegisterProductModal,
+  },
   computed: {
     isLoggedIn() {
       return this.$store.getters['auth/check']
@@ -36,6 +42,18 @@ export default Vue.extend({
     },
   },
   methods: {
+    showRegisterProductModal() {
+      this.$bvModal.show('register-product')
+    },
+    onRegisterProduct(product) {
+      this.$bvToast.toast('製品を編集', {
+        title: `製品「${product.name}」を登録しました`,
+        variant: 'success',
+        solid: true,
+        to: `/products/${product.id}/edit`,
+      })
+      this.$router.push('/')
+    },
     async logout() {
       await this.$store.dispatch('auth/logout')
 
@@ -44,5 +62,5 @@ export default Vue.extend({
       }
     },
   },
-})
+}
 </script>

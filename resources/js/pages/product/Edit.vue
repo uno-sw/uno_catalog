@@ -186,7 +186,7 @@ export default {
         variant: 'success',
         solid: true,
       })
-      this.$router.push(`/products/${this.id}`)
+      this.$router.push(`/`)
     },
     onAddLink(link) {
       this.links.push(link)

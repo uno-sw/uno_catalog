@@ -21,6 +21,8 @@ class ProductIndexResource extends JsonResource
             'price' => $this->price,
             'tags' => TagResource::collection($this->whenLoaded('tags')),
             'image_url' => $this->image_url,
+            'links' => LinkResource::collection($this->whenLoaded('links')),
+            'note' => $this->note,
         ];
     }
 }
