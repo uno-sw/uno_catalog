@@ -45,20 +45,28 @@ export default {
     showRegisterProductModal() {
       this.$bvModal.show('register-product')
     },
-    onRegisterProduct(product) {
+    async onRegisterProduct(product) {
       this.$bvToast.toast('製品を編集', {
         title: `製品「${product.name}」を登録しました`,
         variant: 'success',
         solid: true,
         to: `/products/${product.id}/edit`,
       })
-      this.$router.push('/')
+      if (this.$route.path === '/') {
+        await this.$store.dispatch('product/fetchProducts')
+      } else {
+        this.$router.puhs('/')
+      }
     },
     async logout() {
       await this.$store.dispatch('auth/logout')
 
       if (this.apiStatus) {
         this.$router.push('/login')
+        this.$root.$bvToast.toast('ログアウトしました', {
+          variant: 'success',
+          solid: true,
+        })
       }
     },
   },

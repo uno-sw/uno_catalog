@@ -114,6 +114,7 @@
 <script>
 import AddLinkModal from '../../components/AddLinkModal'
 import FormSection from '../../components/FormSection'
+import client from '../../client'
 import { OK, UNPROCESSABLE_ENTITY } from '../../util'
 
 export default {
@@ -145,7 +146,7 @@ export default {
   methods: {
     async fetchProduct() {
       const wait = new Promise(resolve => setTimeout(() => resolve(), 1000))
-      const request = await axios.get(`/api/products/${this.id}`)
+      const request = await client.get(`/api/products/${this.id}`)
 
       this.isLoading = true
       const [, response] = await Promise.all([wait, request])
@@ -166,7 +167,7 @@ export default {
     },
     async edit() {
       const wait = new Promise(resolve => setTimeout(() => resolve(), 1000))
-      const request = axios.put(`/api/products/${this.id}`, this.values)
+      const request = client.put(`/api/products/${this.id}`, this.values)
 
       this.isEditProcessing = true
       const [, response] = await Promise.all([wait, request])
@@ -205,7 +206,7 @@ export default {
         },
       )
       if (result) {
-        const response = await axios.delete(`/api/links/${id}`)
+        const response = await client.delete(`/api/links/${id}`)
 
         if (response.status !== OK) {
           this.$store.commit('error/setCode', response.status)
@@ -232,7 +233,7 @@ export default {
       )
 
       if (result) {
-        const response = await axios.delete(`/api/products/${this.id}`)
+        const response = await client.delete(`/api/products/${this.id}`)
 
         if (response.status !== OK) {
           this.$store.commit('error/setCode', response.status)

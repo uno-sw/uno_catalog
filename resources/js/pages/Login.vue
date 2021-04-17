@@ -32,7 +32,7 @@
           <b-form-row>
             <b-col offset-md="4">
               <b-form-group>
-                <b-form-checkbox v-model="form.remember">
+                <b-form-checkbox v-model="form.remember" id="remember">
                   継続してログインする
                 </b-form-checkbox>
               </b-form-group>
@@ -48,10 +48,8 @@
   </b-row>
 </template>
 
-<script lang="ts">
-import Vue from 'vue'
-
-export default Vue.extend({
+<script>
+export default {
   data() {
     return {
       form: {
@@ -59,6 +57,7 @@ export default Vue.extend({
         password: '',
         remember: false,
       },
+      isProcessing: false,
     }
   },
   computed: {
@@ -71,18 +70,18 @@ export default Vue.extend({
     forwardingRoute() {
       return this.$store.getters['auth/forwardingRoute']
     },
-    isProcessing() {
-      return this.$store.getters['auth/isProcessing']
-    },
   },
   methods: {
     async login() {
+      this.isProcessing = true
       await this.$store.dispatch('auth/login', this.form)
+      this.isProcessing = false
 
       if (this.apiStatus) {
         if (this.forwardingRoute) {
           this.$router.push(this.forwardingRoute)
           this.$store.commit('auth/setForwardingRoute', null)
+          console.log('reached')
         } else {
           this.$router.push('/')
         }
@@ -93,12 +92,9 @@ export default Vue.extend({
         })
       }
     },
-    clearError() {
-      this.$store.commit('auth/setLoginErrorMessages', null)
-    },
   },
   created() {
-    this.clearError()
+    this.$store.commit('auth/setLoginErrorMessages', null)
   },
-})
+}
 </script>

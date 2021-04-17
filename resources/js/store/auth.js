@@ -1,26 +1,22 @@
-import axios from "axios"
-import { DefineActions, DefineGetters, DefineMutations } from 'vuex-type-helper'
-import { AuthActions, AuthGetters, AuthMutations, AuthState } from "../types/store/auth"
+import client from '../client'
 import { OK, UNPROCESSABLE_ENTITY } from '../util'
 
-const state: AuthState = {
+const state = {
   user: null,
   apiStatus: null,
   loginErrorMessages: null,
   forwardingRoute: null,
-  isProcessing: false,
 }
 
-const getters: DefineGetters<AuthGetters, AuthState> = {
+const getters = {
   check: state => !!state.user,
   username: state => state.user ? state.user.name : '',
   apiStatus: state => state.apiStatus,
   loginErrorMessages: state => state.loginErrorMessages,
   forwardingRoute: state => state.forwardingRoute,
-  isProcessing: state => state.isProcessing,
 }
 
-const mutations: DefineMutations<AuthMutations, AuthState> = {
+const mutations = {
   setUser(state, user) {
     state.user = user
   },
@@ -33,20 +29,28 @@ const mutations: DefineMutations<AuthMutations, AuthState> = {
   setForwardingRoute(state, route) {
     state.forwardingRoute = route
   },
-  setIsProcessing(state, isProcessing) {
-    state.isProcessing = isProcessing
-  }
 }
 
-const actions: DefineActions<AuthActions, AuthState, AuthMutations> = {
+const actions = {
   async login(context, data) {
+    const wait = new Promise(resolve => setTimeout(() => resolve(), 1000))
+    const login = client.post('/api/login', data)
+
     context.commit('setApiStatus', null)
-    context.commit('setIsProcessing', true)
-    await axios.get('/sanctum/csrf-cookie')
-    const wait = new Promise<void>(resolve => setTimeout(() => resolve(), 1000))
-    const login = axios.post('/api/login', data)
+
+    await client.get('/sanctum/csrf-cookie')
     const [, response] = await Promise.all([wait, login])
-    context.commit('setIsProcessing', false)
+
+    if (!response) {
+      context.commit('setApiStatus', false)
+      context.commit('error/setCode', 0, { root: true })
+      context.commit(
+        'error/setMessage',
+        'ネットワークに接続されていません',
+        { root: true },
+      )
+      return
+    }
 
     if (response.status === OK) {
       context.commit('setApiStatus', true)
@@ -55,20 +59,33 @@ const actions: DefineActions<AuthActions, AuthState, AuthMutations> = {
     }
 
     context.commit('setApiStatus', false)
+
     if (response.status === UNPROCESSABLE_ENTITY) {
       context.commit('setLoginErrorMessages', response.data.errors)
-    } else {
-      context.commit('error/setCode', response.status, { root: true })
-      context.commit(
-        'error/setMessage',
-        'ログイン中にエラーが発生しました',
-        { root: true },
-      )
+      return
     }
+
+    context.commit('error/setCode', response.status, { root: true })
+    context.commit(
+      'error/setMessage',
+      'ログイン中にエラーが発生しました',
+      { root: true },
+    )
   },
   async logout(context) {
     context.commit('setApiStatus', null)
-    const response = await axios.post('/api/logout')
+    const response = await client.post('/api/logout')
+
+    if (!response) {
+      context.commit('setApiStatus', false)
+      context.commit('error/setCode', 0, { root: true })
+      context.commit(
+        'error/setMessage',
+        'ネットワークに接続されていません',
+        { root: true },
+      )
+      return
+    }
 
     if (response.status === OK) {
       context.commit('setApiStatus', true)
@@ -86,12 +103,22 @@ const actions: DefineActions<AuthActions, AuthState, AuthMutations> = {
   },
   async currentUser(context) {
     context.commit('setApiStatus', null)
-    const response = await axios.get('/api/user')
-    const user = response.data || null
+    const response = await client.get('/api/user')
+
+    if (!response) {
+      context.commit('setApiStatus', false)
+      context.commit('error/setCode', 0, { root: true })
+      context.commit(
+        'error/setMessage',
+        'ネットワークに接続されていません',
+        { root: true },
+      )
+      return
+    }
 
     if (response.status === OK) {
       context.commit('setApiStatus', true)
-      context.commit('setUser', user)
+      context.commit('setUser', response.data || null)
       return
     }
 

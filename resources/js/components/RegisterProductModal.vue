@@ -30,6 +30,7 @@
 </template>
 
 <script>
+import client from '../client'
 import { CREATED, UNPROCESSABLE_ENTITY } from '../util'
 
 export default {
@@ -43,7 +44,7 @@ export default {
   methods: {
     register(hide) {
       const wait = new Promise(resolve => setTimeout(() => resolve(), 1000))
-      const request = axios.post(`/api/products`, { name: this.name })
+      const request = client.post(`/api/products`, { name: this.name })
 
       this.isProcessing = true
       Promise.all([wait, request]).then(values => {

@@ -5,7 +5,7 @@ export const UNPROCESSABLE_ENTITY = 422
 export const UNAUTHORIZED = 419
 export const NOT_FOUND = 404
 
-export function getCookieValue(searchKey: string): string {
+export function getCookieValue(searchKey) {
   if (typeof searchKey === 'undefined') {
     return ''
   }
