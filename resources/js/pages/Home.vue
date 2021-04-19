@@ -28,6 +28,28 @@ export default {
           : [this.$route.query.tags]
     },
   },
+  watch: {
+    async $route(route) {
+      await this.$store.dispatch('product/filter/setTags', [])
+
+      this.$store.commit('product/sort/setSort', route.query.sort)
+      this.$store.commit('product/sort/setOrder', route.query.order)
+
+      this.$store.commit('product/setIsLoading', true)
+
+      await this.$store.dispatch(
+        'product/filter/setTags',
+        Array.isArray(route.query.tags) ? route.query.tags : [route.query.tags],
+      )
+
+      await this.$store.dispatch(
+        'product/fetchProducts',
+        route.query.page,
+      )
+
+      this.$store.commit('product/setIsLoading', false)
+    },
+  },
   async created() {
     await this.$store.dispatch('product/filter/setTags', [])
 

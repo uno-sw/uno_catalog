@@ -57,10 +57,6 @@ export default {
         const query = {...this.$route.query, tags: this.selectedTags}
         delete query.page
         this.$router.replace({ query })
-        await this.$store.dispatch('product/filter/setTags', this.selectedTags)
-        this.$store.commit('product/setIsLoading', true)
-        await this.$store.dispatch('product/fetchProducts')
-        this.$store.commit('product/setIsLoading', false)
       }
     },
     resetFilter() {
@@ -94,10 +90,6 @@ export default {
           let query = { ...this.$route.query, tags }
           delete query.page
           this.$router.replace({ query })
-          this.$store.dispatch('product/filter/setTags', tags)
-          this.$store.commit('product/setIsLoading', true)
-          await this.$store.dispatch('product/fetchProducts')
-          this.$store.commit('product/setIsLoading', false)
         } else {
           await this.$store.dispatch(
             'product/fetchProducts',

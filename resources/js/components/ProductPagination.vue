@@ -8,7 +8,6 @@
       align="center"
       use-router
       class="mt-4"
-      @change="onChangePage"
     />
   </div>
 </template>
@@ -30,11 +29,6 @@ export default {
         query['order'] = this.$route.query.order
       }
       return { query }
-    },
-    async onChangePage(page) {
-      this.$store.commit('product/setIsLoading', true)
-      await this.$store.dispatch('product/fetchProducts', page)
-      this.$store.commit('product/setIsLoading', false)
     },
   },
   computed: {

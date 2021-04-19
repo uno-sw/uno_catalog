@@ -28,14 +28,6 @@ export default {
       this.$router.replace(
         { query: { ...this.$route.query, ...value } }
       )
-      this.$store.commit('product/sort/setSort', value.sort)
-      this.$store.commit('product/sort/setOrder', value.order)
-      this.$store.commit('product/setIsLoading', true)
-      await this.$store.dispatch(
-        'product/fetchProducts',
-        this.$route.query.page,
-      )
-      this.$store.commit('product/setIsLoading', false)
     },
   },
   computed: {
