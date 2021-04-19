@@ -53,9 +53,11 @@ export default {
         to: `/products/${product.id}/edit`,
       })
       if (this.$route.path === '/') {
+        this.$store.commit('product/setIsLoading', true)
         await this.$store.dispatch('product/fetchProducts')
+        this.$store.commit('product/setIsLoading', false)
       } else {
-        this.$router.puhs('/')
+        this.$router.push('/')
       }
     },
     async logout() {

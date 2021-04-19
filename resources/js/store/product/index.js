@@ -7,7 +7,7 @@ import { OK } from '../../util'
 
 const state = {
   products: [],
-  isLoading: false,
+  isLoading: true,
 }
 
 const getters = {
@@ -39,11 +39,10 @@ const actions = {
       },
     )
 
-    context.commit('setIsLoading', true)
     const [, response] = await Promise.all([wait, request])
-    context.commit('setIsLoading', false)
 
     if (!response) {
+      context.commit('setProducts', [])
       context.commit('error/setCode', 0, { root: true })
       context.commit(
         'error/setMessage',
@@ -68,6 +67,7 @@ const actions = {
       return
     }
 
+    context.commit('setProducts', [])
     context.commit('error/setCode', response.status, { root: true })
     context.commit(
       'error/setMessage',

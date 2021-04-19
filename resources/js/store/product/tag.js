@@ -15,6 +15,9 @@ const mutations = {
   setTags(state, tags) {
     state.tags = tags
   },
+  deleteTag(state, id) {
+    state.tags = state.tags.filter(tag => tag.id != id)
+  },
   setApiStatus(state, apiStatus) {
     state.apiStatus = apiStatus
   },
@@ -25,6 +28,7 @@ const actions = {
     const response = await client.get('/api/tags')
 
     if (!response) {
+      context.commit('setTags', [])
       context.commit('error/setCode', 0, { root: true })
       context.commit(
         'error/setMessage',
@@ -39,6 +43,7 @@ const actions = {
       return
     }
 
+    context.commit('setTags', [])
     context.commit('error/setCode', response.status, { root: true })
     context.commit(
       'error/setMessage',
@@ -63,6 +68,7 @@ const actions = {
     }
 
     if (response.status === OK) {
+      context.commit('deleteTag', id)
       context.commit('setApiStatus', true)
       return
     }
