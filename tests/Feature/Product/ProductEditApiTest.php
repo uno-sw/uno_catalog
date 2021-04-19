@@ -311,20 +311,5 @@ class ProductEditApiTest extends TestCase
             ]);
         $response->assertStatus(422);
         $this->assertEquals($image_url, Product::first()->image_url);
-
-        // more than 255 characters
-        $response = $this->actingAs($this->user)
-            ->putJson(route('product.edit', ['product' => $this->product]), [
-                'name' => 'Test',
-                'image_url' => 'https://example.com/lorem/ipsum/dolor/sit/' .
-                               'amet/consectetur/adipisicing/elit/sed/do/' .
-                               'eiusmod/tempor/incididunt/ut/labore/et/' .
-                               'dolore/magna/aliqua/ut/enim/ad/minim/veniam/' .
-                               'quis/nostrud/exercitation/ullamco/laboris/' .
-                               'nisi/ut/aliquip/ex/ea/commodo/consequat/duis/' .
-                               'image.png',
-            ]);
-        $response->assertStatus(422);
-        $this->assertEquals($image_url, Product::first()->image_url);
     }
 }
