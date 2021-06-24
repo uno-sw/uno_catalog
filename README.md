@@ -1,62 +1,58 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+# Webアプリケーション ポートフォリオ "Uno Catalog"
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## デモ
 
-## About Laravel
+https://uno-catalog-demo-34111.herokuapp.com/
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+以下のユーザーでログインし, 操作をお試しいただけます.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+```
+メールアドレス: guest@example.com
+パスワード: password
+```
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+注: アプリケーションのURL, ユーザー情報を知っていれば誰でも閲覧/操作できます. 入力された情報は他のユーザーが書き換えることが可能です. また公開されるべきでない情報は入力しないでください.
 
-## Learning Laravel
+## 解説
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### アプリケーションの目的
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+多くのECサイトでは「ウィッシュリスト (欲しいものリスト)」の機能が用意されていますが, ECサイトに関係なく製品情報を一つの場所で管理したいという自分自身のニーズがあり, 開発しました.
 
-## Laravel Sponsors
+### 開発期間
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+最初のVue.js版については, バックエンド/フロントエンドあわせて約2ヶ月で開発しました.
 
-### Premium Partners
+そこから約1ヶ月で, Reactを用いてフロントエンドを作り直しました.
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/)**
-- **[OP.GG](https://op.gg)**
+### 機能
 
-## Contributing
+- 製品情報の登録 (製品名/価格/タグ/メモ/リンク)
+- 製品一覧 (ソート可能)
+- タグによる絞り込み
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 使用している技術
 
-## Code of Conduct
+#### バックエンド
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+REST APIサーバとしてPHP (Laravel)を使用しています. 必要に応じてRequest, Policy, API Resourceなどの機能を活用しています. 認証機能にはLaravel Sanctumを使用しています. また, 各エンドポイントについてFeature testを書いています.
 
-## Security Vulnerabilities
+#### フロントエンド
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+以下を使用しています.
 
-## License
+- TypeScript
+- React
+  - React Router
+- Laravel Mix
+- Material UI
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Reduxは使用せず, 複数コンポーネントで参照する情報についてはHooks APIで管理しています.
+
+#### インフラストラクチャ
+
+以下を使用しています.
+
+- Heroku
+- PostgreSQL
+- Redis (セッション情報の管理)
