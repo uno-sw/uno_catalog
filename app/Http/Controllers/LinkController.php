@@ -17,6 +17,11 @@ class LinkController extends Controller
     public function create(Product $product, CreateLink $request)
     {
         $this->authorize('createLink', $product);
+
+        if ($product->links()->count() >= 10) {
+            abort(409);
+        }
+
         $link = $product->links()->create($request->validated());
         return response()->json(['id' => $link->id], 201);
     }

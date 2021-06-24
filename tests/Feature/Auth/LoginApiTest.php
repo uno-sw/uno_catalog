@@ -52,7 +52,7 @@ class LoginApiTest extends TestCase
             ->assertStatus(422)
             ->assertJson([
                 'errors' => [
-                    'email' => ['メールアドレスまたはパスワードが正しくありません。'],
+                    'auth' => ['メールアドレスまたはパスワードが正しくありません。'],
                 ],
             ]);
     }

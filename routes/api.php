@@ -27,7 +27,7 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::get('/products', [ProductController::class, 'index'])->name('product.index');
 Route::post('/products', [ProductController::class, 'register'])->name('product.register');
 Route::get('/products/{product}', [ProductController::class, 'show'])->name('product.show');
-Route::put('/products/{product}', [ProductController::class, 'edit'])->name('product.edit');
+Route::patch('/products/{product}', [ProductController::class, 'edit'])->name('product.edit');
 Route::delete('/products/{product}', [ProductController::class, 'delete'])->name('product.delete');
 
 Route::post('/products/{product}/links', [LinkController::class, 'create'])->name('link.create');

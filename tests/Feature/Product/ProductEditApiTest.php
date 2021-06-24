@@ -34,7 +34,7 @@ class ProductEditApiTest extends TestCase
     public function should_not_edit_product_when_not_logged_in()
     {
         $name = $this->product->name;
-        $response = $this->putJson(
+        $response = $this->patchJson(
             route('product.edit', ['product' => $this->product]),
             ['name' => 'Foobar']);
         $response->assertUnauthorized();
@@ -48,7 +48,7 @@ class ProductEditApiTest extends TestCase
     {
         $name = $this->product->name;
         $response = $this->actingAs($this->users[1])
-            ->putJson(route('product.edit', ['product' => $this->product]), [
+            ->patchJson(route('product.edit', ['product' => $this->product]), [
                 'name' => 'Foobar',
             ]);
         $response->assertForbidden();
@@ -61,7 +61,7 @@ class ProductEditApiTest extends TestCase
     public function should_not_edit_product_when_not_found()
     {
         $response = $this->actingAs($this->user)
-            ->putJson(
+            ->patchJson(
                 route('product.edit', ['product' => 5]), ['name' => 'Foobar']);
         $response->assertNotFound();
     }
@@ -80,12 +80,11 @@ class ProductEditApiTest extends TestCase
         ];
 
         $response = $this->actingAs($this->user)
-            ->putJson(
+            ->patchJson(
                 route('product.edit', ['product' => $this->product]), $data);
 
         $response->assertOk();
-        $this->assertNotNull($response['id']);
-        $product = $this->user->products()->find($response['id']);
+        $product = $this->user->products()->find($response['data']['id']);
         $this->assertNotNull($product);
         $this->assertEquals($data['name'], $product->name);
         $this->assertEquals($data['price'], $product->price);
@@ -97,22 +96,121 @@ class ProductEditApiTest extends TestCase
     /**
      * @test
      */
-    public function should_edit_product_with_min_parameters()
+    public function should_edit_product_with_only_name()
     {
         $response = $this->actingAs($this->user)
-            ->putJson(route('product.edit', ['product' => $this->product]), [
-                'name' => 'Foobar'
+            ->patchJson(route('product.edit', ['product' => $this->product]), [
+                'name' => 'Foobar',
             ]);
 
         $response->assertOk();
-        $this->assertNotNull($response['id']);
-        $product = $this->user->products()->find($response['id']);
+        $this->assertNotNull($response['data']['id']);
+        $product = $this->user->products()->find($response['data']['id']);
         $this->assertNotNull($product);
         $this->assertEquals('Foobar', $product->name);
-        $this->assertEquals('', $product->price);
-        $this->assertEquals('', $product->note);
-        $this->assertEquals('', $product->image_url);
-        $this->assertEquals([], $product->tagLabels);
+        $this->assertEquals(1980, $product->price);
+        $this->assertEquals('Test', $product->note);
+        $this->assertEquals(
+            'https://example.com/test/image.png',
+            $product->image_url
+        );
+        $this->assertEquals(['Apple', 'Banana', 'Orange'], $product->tagLabels);
+    }
+
+    /**
+     * @test
+     */
+    public function should_edit_product_with_only_price()
+    {
+        $response = $this->actingAs($this->user)
+            ->patchJson(route('product.edit', ['product' => $this->product]), [
+                'price' => 7678,
+            ]);
+
+        $response->assertOk();
+        $this->assertNotNull($response['data']['id']);
+        $product = $this->user->products()->find($response['data']['id']);
+        $this->assertNotNull($product);
+        $this->assertEquals('Test', $product->name);
+        $this->assertEquals(7678, $product->price);
+        $this->assertEquals('Test', $product->note);
+        $this->assertEquals(
+            'https://example.com/test/image.png',
+            $product->image_url
+        );
+        $this->assertEquals(['Apple', 'Banana', 'Orange'], $product->tagLabels);
+    }
+
+    /**
+     * @test
+     */
+    public function should_edit_product_with_only_note()
+    {
+        $response = $this->actingAs($this->user)
+            ->patchJson(route('product.edit', ['product' => $this->product]), [
+                'note' => 'Foobar',
+            ]);
+
+        $response->assertOk();
+        $this->assertNotNull($response['data']['id']);
+        $product = $this->user->products()->find($response['data']['id']);
+        $this->assertNotNull($product);
+        $this->assertEquals('Test', $product->name);
+        $this->assertEquals(1980, $product->price);
+        $this->assertEquals('Foobar', $product->note);
+        $this->assertEquals(
+            'https://example.com/test/image.png',
+            $product->image_url
+        );
+        $this->assertEquals(['Apple', 'Banana', 'Orange'], $product->tagLabels);
+    }
+
+    /**
+     * @test
+     */
+    public function should_edit_product_with_only_image_url()
+    {
+        $response = $this->actingAs($this->user)
+            ->patchJson(route('product.edit', ['product' => $this->product]), [
+                'image_url' => 'https://example.com/test/test.jpg?query#section',
+            ]);
+
+        $response->assertOk();
+        $this->assertNotNull($response['data']['id']);
+        $product = $this->user->products()->find($response['data']['id']);
+        $this->assertNotNull($product);
+        $this->assertEquals('Test', $product->name);
+        $this->assertEquals(1980, $product->price);
+        $this->assertEquals('Test', $product->note);
+        $this->assertEquals(
+            'https://example.com/test/test.jpg?query#section',
+            $product->image_url
+        );
+        $this->assertEquals(['Apple', 'Banana', 'Orange'], $product->tagLabels);
+    }
+
+    /**
+     * @test
+     */
+    public function should_edit_product_with_only_tags()
+    {
+        $response = $this->actingAs($this->user)
+            ->patchJson(route('product.edit', ['product' => $this->product]), [
+                'tags' => ['Test']
+            ]);
+
+        $response->assertOk();
+        $this->assertNotNull($response['data']['id']);
+        $product = $this->user->products()->find($response['data']['id']);
+        $this->assertNotNull($product);
+        $this->assertEquals('Test', $product->name);
+        $this->assertEquals(1980, $product->price);
+        $this->assertEquals('Test', $product->note);
+        $this->assertEquals(
+            'https://example.com/test/image.png',
+            $product->image_url
+        );
+        $this->assertEquals(['Test'], $product->tagLabels);
     }
 
     /**
@@ -121,51 +219,22 @@ class ProductEditApiTest extends TestCase
     public function should_edit_product_with_valid_image_url()
     {
         $response = $this->actingAs($this->user)
-            ->putJson(route('product.edit', ['product' => $this->product]), [
-                'name' => 'Test',
+            ->patchJson(route('product.edit', ['product' => $this->product]), [
                 'image_url' => 'https://example.com/test/image.jpeg?query#section',
             ]);
         $response->assertOk();
 
         $response = $this->actingAs($this->user)
-            ->putJson(route('product.edit', ['product' => $this->product]), [
-                'name' => 'Test',
+            ->patchJson(route('product.edit', ['product' => $this->product]), [
                 'image_url' => 'https://example.com/test/image.jpg?query#section',
             ]);
         $response->assertOk();
 
         $response = $this->actingAs($this->user)
-            ->putJson(route('product.edit', ['product' => $this->product]), [
-                'name' => 'Test',
+            ->patchJson(route('product.edit', ['product' => $this->product]), [
                 'image_url' => 'https://example.com/test/image.png?query#section',
             ]);
         $response->assertOk();
-    }
-
-    /**
-     * @test
-     */
-    public function should_not_edit_product_with_empty_data()
-    {
-        $response = $this->actingAs($this->user)
-            ->putJson(route('product.edit', ['product' => $this->product]));
-        $response->assertStatus(422);
-    }
-
-    /**
-     * @test
-     */
-    public function should_not_edit_product_when_name_not_provided()
-    {
-        $name = $this->product->name;
-        $response = $this->actingAs($this->user)
-            ->putJson(route('product.edit', ['product' => $this->product]), [
-                'price' => 7678,
-                'note' => 'Foobar',
-                'tags' => ['Test'],
-            ]);
-        $response->assertStatus(422);
-        $this->assertEquals($name, Product::first()->name);
     }
 
     /**
@@ -175,7 +244,7 @@ class ProductEditApiTest extends TestCase
     {
         $name = $this->product->name;
         $response = $this->actingAs($this->user)
-            ->putJson(route('product.edit', ['product' => $this->product]), [
+            ->patchJson(route('product.edit', ['product' => $this->product]), [
                 'name' => 123,
             ]);
         $response->assertStatus(422);
@@ -189,7 +258,7 @@ class ProductEditApiTest extends TestCase
     {
         $name = $this->product->name;
         $response = $this->actingAs($this->user)
-            ->putJson(route('product.edit', ['product' => $this->product]), [
+            ->patchJson(route('product.edit', ['product' => $this->product]), [
                 'name' => 'Lorem ipsum dolor sit amet, consectetur ' .
                           'adipisicing elit, sed do eiusmod tempor ' .
                           'incididunt ut labore et',
@@ -205,16 +274,14 @@ class ProductEditApiTest extends TestCase
     {
         $price = $this->product->price;
         $response = $this->actingAs($this->user)
-            ->putJson(route('product.edit', ['product' => $this->product]), [
-                'name' => 'Foobar',
+            ->patchJson(route('product.edit', ['product' => $this->product]), [
                 'price' => 'test',
             ]);
         $response->assertStatus(422);
         $this->assertEquals($price, Product::first()->price);
 
         $response = $this->actingAs($this->user)
-            ->putJson(route('product.edit', ['product' => $this->product]), [
-                'name' => 'Foobar',
+            ->patchJson(route('product.edit', ['product' => $this->product]), [
                 'price' => '3.1492653',
             ]);
         $response->assertStatus(422);
@@ -228,8 +295,7 @@ class ProductEditApiTest extends TestCase
     {
         $note = $this->product->note;
         $response = $this->actingAs($this->user)
-            ->putJson(route('product.edit', ['product' => $this->product]), [
-                'name' => 'Foobar',
+            ->patchJson(route('product.edit', ['product' => $this->product]), [
                 'note' => 123,
             ]);
         $response->assertStatus(422);
@@ -243,16 +309,14 @@ class ProductEditApiTest extends TestCase
     {
         $tagLabels = $this->product->tagLabels;
         $response = $this->actingAs($this->user)
-            ->putJson(route('product.edit', ['product' => $this->product]), [
-                'name' => 'Foobar',
+            ->patchJson(route('product.edit', ['product' => $this->product]), [
                 'tags' => 'test',
             ]);
         $response->assertStatus(422);
         $this->assertEquals($tagLabels, Product::first()->tagLabels);
 
         $response = $this->actingAs($this->user)
-            ->putJson(route('product.edit', ['product' => $this->product]), [
-                'name' => 'Foobar',
+            ->patchJson(route('product.edit', ['product' => $this->product]), [
                 'tags' => [1, 2, 3],
             ]);
         $response->assertStatus(422);
@@ -260,8 +324,7 @@ class ProductEditApiTest extends TestCase
 
         // more than 10 tags
         $response = $this->actingAs($this->user)
-            ->putJson(route('product.edit', ['product' => $this->product]), [
-                'name' => 'Foobar',
+            ->patchJson(route('product.edit', ['product' => $this->product]), [
                 'tags' => ['a', 'b', 'c', 'd', 'e',
                            'f', 'g', 'h', 'i', 'j', 'k'],
             ]);
@@ -270,9 +333,24 @@ class ProductEditApiTest extends TestCase
 
         // contains tag of more than 20 characters
         $response = $this->actingAs($this->user)
-            ->putJson(route('product.edit', ['product' => $this->product]), [
-                'name' => 'Foobar',
+            ->patchJson(route('product.edit', ['product' => $this->product]), [
                 'tags' => ['test', 'Lorem ipsum dolor sit'],
+            ]);
+        $response->assertStatus(422);
+        $this->assertEquals($tagLabels, Product::first()->tagLabels);
+
+        // contains empty tag
+        $response = $this->actingAs($this->user)
+            ->patchJson(route('product.edit', ['product' => $this->product]), [
+                'tags' => ['test', ''],
+            ]);
+        $response->assertStatus(422);
+        $this->assertEquals($tagLabels, Product::first()->tagLabels);
+
+        // contains tag of only space(s)
+        $response = $this->actingAs($this->user)
+            ->patchJson(route('product.edit', ['product' => $this->product]), [
+                'tags' => ['test', '   '],
             ]);
         $response->assertStatus(422);
         $this->assertEquals($tagLabels, Product::first()->tagLabels);
@@ -287,8 +365,7 @@ class ProductEditApiTest extends TestCase
 
         // invalid URL
         $response = $this->actingAs($this->user)
-            ->putJson(route('product.edit', ['product' => $this->product]), [
-                'name' => 'Test',
+            ->patchJson(route('product.edit', ['product' => $this->product]), [
                 'image_url' => 'test',
             ]);
         $response->assertStatus(422);
@@ -296,8 +373,7 @@ class ProductEditApiTest extends TestCase
 
         // URL not include file name
         $response = $this->actingAs($this->user)
-            ->putJson(route('product.edit', ['product' => $this->product]), [
-                'name' => 'Test',
+            ->patchJson(route('product.edit', ['product' => $this->product]), [
                 'image_url' => 'http://example.com',
             ]);
         $response->assertStatus(422);
@@ -305,8 +381,7 @@ class ProductEditApiTest extends TestCase
 
         // file extension is neither .jpg, .jpeg nor .png
         $response = $this->actingAs($this->user)
-            ->putJson(route('product.edit', ['product' => $this->product]), [
-                'name' => 'Test',
+            ->patchJson(route('product.edit', ['product' => $this->product]), [
                 'image_url' => 'http://example.com/example.gif',
             ]);
         $response->assertStatus(422);

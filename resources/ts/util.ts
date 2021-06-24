@@ -1,0 +1,47 @@
+import React from 'react'
+
+export const NETWORK_ERROR = 0
+export const OK = 200
+export const CREATED = 201
+export const INTERNAL_SERVER_ERROR = 500
+export const UNPROCESSABLE_ENTITY = 422
+export const UNAUTHORIZED = 419
+export const NOT_FOUND = 404
+
+export function getCookieValue(searchKey: string) {
+  if (!searchKey) {
+    return ''
+  }
+
+  let val = ''
+
+  document.cookie.split(';').forEach(cookie => {
+    const [key, value] = cookie.split('=')
+    if (key === searchKey) {
+      val = value
+      return
+    }
+  })
+
+  return val
+}
+
+export const createGenericContext = <T extends unknown>() => {
+  const genericContext = React.createContext<T | undefined>(undefined)
+
+  const useGenericContext = () => {
+    const contextIsDefined = React.useContext(genericContext)
+    if (!contextIsDefined) {
+      throw new Error('useGenericContext must be used within a Provider')
+    } else {
+      return contextIsDefined
+    }
+  }
+
+  return [useGenericContext, genericContext.Provider] as const
+}
+
+export function extractDomain(url: string): string | null {
+  const result = url.match(/^https?:\/{2,}(.*?)(?:\/|\?|#|$)/)
+  return result === null ? null : result[1]
+}

@@ -12,6 +12,10 @@ class Tag extends Model
 
     protected $fillable = ['label'];
 
+    protected $casts = [
+        'user_id' => 'integer',
+    ];
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
