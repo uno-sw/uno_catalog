@@ -184,9 +184,9 @@ class LinkCreateApiTest extends TestCase
         $response = $this->actingAs($this->user)
             ->postJson(route('link.create', ['product' => $this->product]), [
                 'title' => 'Test',
-                'url' => 'test',
+                'url' => 'https://example.com',
             ]);
-        $response->assertStatus(422);
+        $response->assertStatus(409);
         $this->assertEquals($linkCount, Link::count());
     }
 }

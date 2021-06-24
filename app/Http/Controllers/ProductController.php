@@ -32,6 +32,9 @@ class ProductController extends Controller
         $tags = $request->tags;
 
         if (is_array($tags)) {
+            $tags = array_filter($tags, function($tag) {
+                return preg_match('/^[1-9][0-9]*$/', $tag);
+            });
             $products = Auth::user()
                 ->products()
                 ->select('products.*')
@@ -73,19 +76,29 @@ class ProductController extends Controller
     {
         $this->authorize('edit', $product);
 
-        $product->name = $request->name;
-        $product->price = $request->price;
-        $product->note = $request->note;
-        $product->image_url = $request->image_url;
+        if ($request->name) {
+            $product->name = $request->name;
+        }
+
+        if ($request->price !== null) {
+            $product->price = $request->price === '' ? null : $request->price;
+        }
+
+        if ($request->note !== null) {
+            $product->note = $request->note;
+        }
+
+        if ($request->image_url !== null) {
+            $product->image_url = $request->image_url;
+        }
+
         $product->save();
 
-        $tags = [];
-        if ($request->tags) {
-            $tags = $request->tags;
+        if ($request->tags !== null) {
+            $product->tags = $request->tags;
         }
-        $product->tags = $tags;
 
-        return response()->json(['id' => $product->id]);
+        return new ProductDetailResource($product);
     }
 
     public function delete(Product $product)
